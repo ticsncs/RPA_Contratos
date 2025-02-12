@@ -1,0 +1,75 @@
+{
+  "cookies": [
+    {
+      "name": "frontend_lang",
+      "value": "es_EC",
+      "domain": "erp.nettplus.net",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "tz",
+      "value": "America/Guayaquil",
+      "domain": "erp.nettplus.net",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "session_id",
+      "value": "a9400caba842736aea7be4a156966940bb450aa8",
+      "domain": "erp.nettplus.net",
+      "path": "/",
+      "expires": 1747153050.137388,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "cids",
+      "value": "1",
+      "domain": "erp.nettplus.net",
+      "path": "/",
+      "expires": 1770913048.91844,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://erp.nettplus.net",
+      "localStorage": [
+        {
+          "name": "bus.https_erp.nettplus.net.master",
+          "value": "true"
+        },
+        {
+          "name": "bus.https_erp.nettplus.net.lastPresence",
+          "value": "1739377048908"
+        },
+        {
+          "name": "bus.https_erp.nettplus.net.options",
+          "value": "{}"
+        },
+        {
+          "name": "bus.https_erp.nettplus.net.focus",
+          "value": "false"
+        },
+        {
+          "name": "bus.https_erp.nettplus.net.heartbeat",
+          "value": "1739377050557"
+        },
+        {
+          "name": "bus.https_erp.nettplus.net.peers",
+          "value": "{}"
+        }
+      ]
+    }
+  ]
+}
