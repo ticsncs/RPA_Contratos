@@ -13,7 +13,10 @@
   "description": "",
   "dependencies": {
     "@slack/web-api": "^7.7.0",
+    "csv-parser": "^3.2.0",
     "dotenv": "^16.4.5",
-    "playwright": "^1.49.0"
+    "pdfkit": "^0.16.0",
+    "playwright": "^1.49.0",
+    "xlsx": "^0.18.5"
   }
 }

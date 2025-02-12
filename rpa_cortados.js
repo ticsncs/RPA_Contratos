@@ -66,6 +66,7 @@ require('dotenv').config();
         await page.locator('label:has-text("Cortado")').click();
         await sendSlackMessage('📌 Filtro de contratos cortados aplicado.');
 
+        // Seleccionar todos los contratos
         await page.waitForSelector('th.o_list_record_selector', { timeout: 10000 });
         await page.click('th.o_list_record_selector');
         await sendSlackMessage('📌 Contratos seleccionados.');
