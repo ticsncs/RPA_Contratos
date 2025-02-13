@@ -54,17 +54,75 @@ require('dotenv').config();
         await page.waitForSelector('th.o_list_record_selector', { timeout: 15000 });
         const currentDate = new Date();
         const currentMonth = currentDate.toLocaleString('es-ES', { month: 'long' });
-        const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+        const currentYear = currentDate.getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1);
         const weekNumber = Math.ceil((((currentDate - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
 
+        console.log(`📅 Año actual: ${currentYear}`);
         console.log(`📅 Mes actual: ${currentMonth}`);
         console.log(`📅 Semana actual del año: W${weekNumber}`);
+
+        await page.getByRole('button', { name: ' Favoritos' }).click();
+        await page.getByText('Seg_Contratos').click();
+        await page.getByRole('cell', { name: ` ${currentYear}` }).click();
+        await page.getByRole('cell', { name: ` ${currentMonth}` }).click();
+        await page.getByRole('cell', { name: ` W${weekNumber} ${currentYear}` }).click();
+    
+         // Selección de contratos
+        await page.waitForSelector('table tbody tr', { timeout: 60000 });
+
+        // Esperar un tiempo prudente para asegurar que la página ha cargado completamente
+        await page.waitForTimeout(5000);
+        // Seleccionar todos los contratos
+        await page.waitForSelector('th.o_list_record_selector', { timeout: 10000 });
+        await page.click('th.o_list_record_selector');
+        await sendSlackMessage('📌 Contratos seleccionados.');
+
+        // Aplicar filtros
+        await page.waitForSelector('a.o_list_select_domain.btn-info', { timeout: 10000 });
+        await page.click('a.o_list_select_domain.btn-info');
+        await sendSlackMessage('🎯 Filtros aplicados.');
+
+        // Exportar a CSV
+        await page.waitForSelector('div.o_cp_action_menus > div:nth-child(2) > button', { timeout: 10000 });
+        await page.click('div.o_cp_action_menus > div:nth-child(2) > button');
+        await page.waitForSelector('div.o_cp_action_menus > div.btn-group.dropdown.show > ul > li:nth-child(1) > a', { timeout: 10000 });
+        await page.click('div.o_cp_action_menus > div.btn-group.dropdown.show > ul > li:nth-child(1) > a');
+        await sendSlackMessage('📤 Preparando exportación...');
+
+
+        await sendSlackMessage('📌 Contratos seleccionados.');
+
+       
+
+
+        await page.pause();
+        await page.getByRole('button', { name: ' Favoritos' }).click();
+        await page.getByRole('menuitemcheckbox', { name: 'Seg_Contratos' }).click();
         
         await page.pause();
 
 
 
         /**
+         * 
+
+        
+  await page.locator('thead').getByRole('cell', { name: '​', exact: true }).click();
+  await page.locator('thead').getByRole('cell', { name: '​', exact: true }).click();
+  await page.getByRole('button', { name: ' Acción' }).click();
+  await page.getByRole('menuitemcheckbox', { name: 'Exportar' }).click();
+  await page.getByRole('combobox').selectOption('215');
+  await page.getByRole('heading', { name: 'Error del cliente de Odoo' }).click({
+    button: 'right'
+  });
+  await page.getByRole('heading', { name: 'Error del cliente de Odoo' }).click();
+  await page.getByRole('button', { name: 'Aceptar' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exportar' }).click();
+  const download = await downloadPromise;
+         * 
+         * 
          *   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto('https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list');
