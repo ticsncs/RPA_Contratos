@@ -1,13 +1,14 @@
-const { chromium } = require('playwright');
-const fs = require('fs');
-const path = require('path');
-const config = require('./src/config.js');
-const sendSlackMessage = require('./src/alertSlack.js');
-require('dotenv').config();
+import { chromium } from 'playwright';
+import fs from 'fs';
+import path from 'path';
+import { config } from './core/config';
+import { sendSlackMessage } from './core/alertSlack';
+import dotenv from 'dotenv';
+dotenv.config();
 
 (async () => {
     await sendSlackMessage('🤖 Iniciando proceso de automatización...');
-    await sendSlackMessage('📄 Empezando a trabajar con la exportación de contratos cortados...');
+    await sendSlackMessage('📄 Empezando a trabajar con la exportación de todos los contratos...');
 
     try {
         // Crear carpeta de descargas si no existe
@@ -25,7 +26,7 @@ require('dotenv').config();
         const hasSession = fs.existsSync(sessionFilePath);
         console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
 
-        const browser = await chromium.launch({ headless: true });
+        const browser = await chromium.launch({ headless: true }); // Se ejecuta en modo headless para mayor velocidad
         const context = hasSession
             ? await browser.newContext({ acceptDownloads: true, storageState: sessionFilePath })
             : await browser.newContext({ acceptDownloads: true });
@@ -36,19 +37,22 @@ require('dotenv').config();
         await page.goto(config.baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
         // Verificar si ya hay sesión activa
+
         if (!hasSession) {
             await sendSlackMessage('🔑 No se detectó sesión activa, iniciando sesión...');
             await sendSlackMessage('🔑 Ingresando credenciales...');
             let attempts = 0;
             while (attempts < 2) {
                 try {
-                    await page.waitForSelector('input[name="login"]', { timeout: 10000 });
-                    await page.fill('input[name="login"]', config.user);
-                    await page.fill('input[name="password"]', config.pass);
+                    await page.waitForSelector('#login', { timeout: 10000 });
+                    await page.fill('#login', config.user);
+                    await page.fill('#password', config.pass);
                     await page.click('button[type="submit"]');
 
+                    // Esperar que la autenticación se complete
                     await page.waitForSelector('th.o_list_record_selector', { timeout: 30000 });
                     await sendSlackMessage('✅ Inicio de sesión exitoso.');
+                    // Guardar estado de sesión
                     await context.storageState({ path: sessionFilePath });
                     break;
                 } catch (err) {
@@ -61,12 +65,7 @@ require('dotenv').config();
             }
         }
 
-        // Selección de contratos cortados
-        await page.waitForSelector('label:has-text("Cortado")', { timeout: 10000 });
-        await page.locator('label:has-text("Cortado")').click();
-        await sendSlackMessage('📌 Filtro de contratos cortados aplicado.');
-
-        // Seleccionar todos los contratos
+        // Selección de contratos
         await page.waitForSelector('th.o_list_record_selector', { timeout: 10000 });
         await page.click('th.o_list_record_selector');
         await sendSlackMessage('📌 Contratos seleccionados.');
@@ -76,9 +75,11 @@ require('dotenv').config();
         await page.click('a.o_list_select_domain.btn-info');
         await sendSlackMessage('🎯 Filtros aplicados.');
 
-        // Exportar a CSV
+        // Click en botón de Acciones
         await page.waitForSelector('div.o_cp_action_menus > div:nth-child(2) > button', { timeout: 10000 });
         await page.click('div.o_cp_action_menus > div:nth-child(2) > button');
+        
+        // Click en Exportar
         await page.waitForSelector('div.o_cp_action_menus > div.btn-group.dropdown.show > ul > li:nth-child(1) > a', { timeout: 10000 });
         await page.click('div.o_cp_action_menus > div.btn-group.dropdown.show > ul > li:nth-child(1) > a');
         await sendSlackMessage('📤 Preparando exportación...');
@@ -86,7 +87,7 @@ require('dotenv').config();
         // Seleccionar formato CSV
         await page.waitForSelector('label[for="o_radioCSV"]', { timeout: 10000 });
         await page.click('label[for="o_radioCSV"]');
-        await page.selectOption('select.o_exported_lists_select', { label: 'TIC_CORTADOS' });
+        await page.selectOption('select.o_exported_lists_select', { label: 'TICS_TEST' });
         await sendSlackMessage('📑 Formato CSV seleccionado. Iniciando descarga...');
 
         // Descarga del archivo
@@ -98,11 +99,12 @@ require('dotenv').config();
                     page.click('.modal-footer > .btn-primary'),
                 ]);
 
+                // Manejo del archivo descargado
                 const originalFilePath = path.join(config.downloadPath, download.suggestedFilename());
                 await download.saveAs(originalFilePath);
 
                 const timestamp = new Date().toISOString().replace(/[-:.]/g, '_');
-                const newFileName = `backup_cortados_${timestamp}.csv`;
+                const newFileName = `backup_info_${timestamp}.csv`;
                 const newFilePath = path.join(config.downloadPath, newFileName);
 
                 fs.renameSync(originalFilePath, newFilePath);
@@ -124,6 +126,6 @@ require('dotenv').config();
         await sendSlackMessage('✅ Automatización completada con éxito.');
     } catch (error) {
         console.error('❌ Error durante la automatización:', error);
-        await sendSlackMessage(`❌ Error en la automatización: ${error.message}`);
+        await sendSlackMessage(`❌ Error en la automatización: ${(error as Error).message}`);
     }
 })();
