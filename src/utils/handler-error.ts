@@ -1,5 +1,4 @@
 import { Page } from 'playwright';
-import { sendSlackMessage } from '../core/alertSlack';
 
 const MAX_ATTEMPTS = 3;
 const WAIT_TIME = 1000; // 1 segundo de espera
@@ -70,7 +69,6 @@ export const interactWithElement = async (
     }
 
     console.log(`❌ No se pudo interactuar con ${selector} después de ${maxAttempts} intentos.`);
-    await sendSlackMessage(`❌ Error en la automatización: No se encontró ${selector}`);
     await page.waitForTimeout(Math.floor(Math.random() * 1000) + 1000);
     return false;
 };
