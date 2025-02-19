@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../core/config';
-import { sendSlackMessage } from '../core/alertSlack';
+import { interactWithElement } from '../utils/handler-error';
 
 export async function login() {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');
@@ -19,12 +19,13 @@ export async function login() {
     await page.goto(config.baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
     if (!hasSession) {
-        await sendSlackMessage('🔑 No se detectó sesión activa, iniciando sesión...');
-        await page.fill('input[name="login"]', config.user);
-        await page.fill('input[name="password"]', config.pass);
-        await page.click('button[type="submit"]');
-        await page.waitForSelector('th.o_list_record_selector', { timeout: 30000 });
-        await sendSlackMessage('✅ Inicio de sesión exitoso.');
+        console.log('🔑 No se detectó sesión activa, iniciando sesión...');
+        await interactWithElement(page, 'input[name="login"]', 'wait');
+        await interactWithElement(page, 'input[name="login"]', 'fill', { text: config.user });
+        await interactWithElement(page, 'input[name="password"]', 'fill', { text: config.pass });
+        await interactWithElement(page, 'button[type="submit"]', 'click');
+        await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 30000 });
+        console.log('✅ Inicio de sesión exitoso.');
         await context.storageState({ path: sessionFilePath });
     }
 
