@@ -1,11 +1,7 @@
-
-import { interactWithElement } from './utils/handler-error';
-
 import { login } from './core/login';
 import { downloadFile, generateReport } from './utils/handler-files';
 
 (async () => {
-
     try {
         console.log('🤖 Iniciando proceso de validación de campos...');
        
@@ -14,15 +10,15 @@ import { downloadFile, generateReport } from './utils/handler-files';
 
         // Esperar a que cargue la página principal
         console.log('🔍 Esperando a que cargue la página principal...');
-        await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
+        await page.waitForSelector('span.text-900:has-text("Contratos")');
 
         // Click sobre el Favoritos
-        await interactWithElement(page, 'button.dropdown-toggle:has-text("Favoritos")', 'click'); 
+        await page.click('button.dropdown-toggle:has-text("Favoritos")');
 
         // Click sobre el filtro de Seguimiento de Contratos
-        await interactWithElement(page, 'span.d-flex:has-text("Seg_Contratos")', 'click');
+        await page.click('span.d-flex:has-text("Seg_Contratos")');
         
-        // Click sobre el filtro de  Año actual, Mes actual y Semana actual
+        // Click sobre el filtro de Año actual, Mes actual y Semana actual
         const currentDate = new Date();
         const currentMonth = currentDate.toLocaleString('es-ES', { month: 'long' });
         const currentYear = currentDate.getFullYear();
@@ -31,25 +27,25 @@ import { downloadFile, generateReport } from './utils/handler-files';
         console.log(`📅 Año actual: ${currentYear}`);
         console.log(`📅 Mes actual: ${currentMonth}`);
         console.log(`📅 Semana actual del año: W${weekNumber}`);
-        await interactWithElement(page, `th.o_group_name:has-text("${currentYear}")`, 'click');
-        await interactWithElement(page, `th.o_group_name:has-text("${currentMonth} ${currentYear}")`, 'click'); 
-        await interactWithElement(page, `th.o_group_name:has-text("W${weekNumber} ${currentYear}")`, 'click');
+        await page.click(`th.o_group_name:has-text("${currentYear}")`);
+        await page.click(`th.o_group_name:has-text("${currentMonth} ${currentYear}")`);
+        await page.click(`th.o_group_name:has-text("W${weekNumber} ${currentYear}")`);
         
         // Click sobre el botón de exportar y seleccionar contratos con filtros
-        await interactWithElement(page, 'thead tr .o_list_record_selector', 'wait', { waitTime: 2000 });
-        await interactWithElement(page, 'thead tr .o_list_record_selector', 'click');
+        await page.waitForSelector('thead tr .o_list_record_selector', { timeout: 2000 });
+        await page.click('thead tr .o_list_record_selector');
 
         // Click sobre el botón de Acción y seleccionar Exportar
-        await interactWithElement(page, 'span.o_dropdown_title:has-text("Acción")', 'click');
-        await interactWithElement(page, 'a.dropdown-item:has-text("Exportar")', 'click');
+        await page.click('span.o_dropdown_title:has-text("Acción")');
+        await page.click('a.dropdown-item:has-text("Exportar")');
 
         // Seleccionar la opción de exportar a XLSX
-        await interactWithElement(page, 'label[for="o_radioXLSX"]', 'click');
+        await page.click('label[for="o_radioXLSX"]');
 
-        // Esperar a que cargue la lista de exportación y seleccionar la lista de campos  RPA_CLEAR_FIELDS
-        await interactWithElement(page, 'select.o_exported_lists_select', 'wait' , { waitTime: 2000 });
-        await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: 'RPA_CLEAR_FIELDS' });
-        await interactWithElement(page, 'select.o_exported_lists_select', 'wait' , { waitTime: 2000 });
+        // Esperar a que cargue la lista de exportación y seleccionar la lista de campos RPA_CLEAR_FIELDS
+        await page.waitForSelector('select.o_exported_lists_select', { timeout: 2000 });
+        await page.selectOption('select.o_exported_lists_select', { label: 'RPA_CLEAR_FIELDS' });
+        await page.waitForSelector('select.o_exported_lists_select', { timeout: 2000 });
         
         // Empieza el proceso de descarga del archivo
         const downloadedFilePath = await downloadFile(page, '.modal-footer > .btn-primary', 'validador_campos');
