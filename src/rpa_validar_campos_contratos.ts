@@ -13,8 +13,9 @@ import { downloadFile, generateReport } from './utils/handler-files';
         const { browser, page } = await login();
 
         // Esperar a que cargue la página principal
-        //await interactWithElement(page, 'input[name="login"]', 'wait');
-        await interactWithElement(page, 'span[class=text-900]', 'wait');
+        console.log('🔍 Esperando a que cargue la página principal...');
+        console.log('browser', browser, 'page', page);
+        await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
         // Click sobre el Favoritos
         await interactWithElement(page, 'button.dropdown-toggle:has-text("Favoritos")', 'click'); 
