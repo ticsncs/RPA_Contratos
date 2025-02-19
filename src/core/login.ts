@@ -9,7 +9,12 @@ export async function login() {
     const hasSession = fs.existsSync(sessionFilePath);
     console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
 
-    const browser = await chromium.launch({ headless: true });
+    //const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({
+        headless: true,  // Modo sin interfaz gráfica
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
     const context = hasSession
         ? await browser.newContext({ acceptDownloads: true, storageState: sessionFilePath })
         : await browser.newContext({ acceptDownloads: true });
