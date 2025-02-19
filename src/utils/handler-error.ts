@@ -4,11 +4,13 @@ import { sendSlackMessage } from '../core/alertSlack';
 const MAX_ATTEMPTS = 3;
 const WAIT_TIME = 1000; // 1 segundo de espera
 
-type ActionType = 'click' | 'text' | 'wait' | 'fill' | 'doubleClick' | 'hover' | 'type' | 'press';
+type ActionType = 'click' | 'text' | 'wait' | 'fill' | 'doubleClick' | 'hover' | 'type' | 'press' | 'selectOption';
 
 interface ActionOptions {
     text?: string;
     key?: string;
+    label?: string;
+    waitTime?: number; // Añadido para permitir pasar el tiempo de espera
 }
 
 export const interactWithElement = async (
@@ -28,7 +30,7 @@ export const interactWithElement = async (
 
                 switch (action) {
                     case 'click':
-                        await element.click({ force: true });
+                        await page.locator(selector).first().click({ force: true });
                         break;
                     case 'doubleClick':
                         await element.dblclick({ force: true });
@@ -39,7 +41,7 @@ export const interactWithElement = async (
                     case 'text':
                         return await page.$eval(selector, el => el.textContent?.trim() || '');
                     case 'wait':
-                        await page.waitForSelector(selector, { timeout: 5000 });
+                        await page.waitForTimeout(options.waitTime || 3000); // Usar el tiempo de espera pasado o 3 segundos por defecto
                         break;
                     case 'fill':
                         await element.fill(options.text || '');
@@ -49,6 +51,9 @@ export const interactWithElement = async (
                         break;
                     case 'press':
                         await element.press(options.key || '');
+                        break;
+                    case 'selectOption':
+                        await page.selectOption(selector, { label: options.label || '' });
                         break;
                     default:
                         throw new Error(`Acción no soportada: ${action}`);
@@ -69,30 +74,3 @@ export const interactWithElement = async (
     await page.waitForTimeout(Math.floor(Math.random() * 1000) + 1000);
     return false;
 };
-
-// Ejemplo de uso de la función interactWithElement
-/*
-(async () => {
-    const page: Page = await browser.newPage();
-
-    // Ejemplo 1: Hacer clic en un botón
-    const clickResult = await interactWithElement(page, '#submit-button', 'click');
-    console.log(`Resultado del clic: ${clickResult}`);
-
-    // Ejemplo 2: Obtener texto de un elemento
-    const textResult = await interactWithElement(page, '#message', 'text');
-    console.log(`Texto obtenido: ${textResult}`);
-
-    // Ejemplo 3: Llenar un campo de texto
-    const fillResult = await interactWithElement(page, '#input-field', 'fill', { text: 'Hola Mundo' });
-    console.log(`Resultado del llenado: ${fillResult}`);
-
-    // Ejemplo 4: Esperar a que un elemento aparezca
-    const waitResult = await interactWithElement(page, '#loading', 'wait');
-    console.log(`Resultado de la espera: ${waitResult}`);
-    // Ejemplo 5: Presionar una tecla en un elemento
-    const pressResult = await interactWithElement(page, '#input-field', 'press', { key: 'Enter' });
-    console.log(`Resultado de presionar tecla: ${pressResult}`);
-    await page.close();
-})();
-*/
