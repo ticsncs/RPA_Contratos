@@ -12,7 +12,7 @@ export async function login() {
     //const browser = await chromium.launch({ headless: true });
     const browser = await chromium.launch({
         headless: true,  // Modo sin interfaz gráfica
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-gpu']
     });
     
     const context = hasSession
