@@ -11,6 +11,9 @@ import { downloadFile, generateReport } from './utils/handler-files';
        
         // Iniciar sesión en el sistema
         const { browser, page } = await login();
+        // 🛑 Agregar una espera extra para asegurarse de que la página carga completamente
+        await page.waitForTimeout(5000); // Esperar 5 segundos
+        console.log('✅ Sesión iniciada correctamente.');
 
         // Esperar a que cargue la página principal
         console.log('🔍 Esperando a que cargue la página principal...');
