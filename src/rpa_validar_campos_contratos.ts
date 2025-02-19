@@ -14,7 +14,6 @@ import { downloadFile, generateReport } from './utils/handler-files';
 
         // Esperar a que cargue la página principal
         console.log('🔍 Esperando a que cargue la página principal...');
-        console.log('browser', browser, 'page', page);
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
         // Click sobre el Favoritos
