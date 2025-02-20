@@ -4,12 +4,12 @@ import path from 'path';
 import { config } from '../core/config';
 import { interactWithElement } from '../utils/handler-error';
 
-export async function login() {
+export async function login(view:boolean) {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');
     const hasSession = fs.existsSync(sessionFilePath);
     console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
 
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({ headless: view });
     const context = hasSession
         ? await browser.newContext({ acceptDownloads: true, storageState: sessionFilePath })
         : await browser.newContext({ acceptDownloads: true });

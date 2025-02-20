@@ -9,7 +9,7 @@ import { downloadFile, generateReport } from './utils/handler-files';
     try {
         console.log('🤖 Iniciando proceso de validación de campos...');
         // Iniciar sesión en el sistema
-        const { browser, page } = await login();
+        const { browser, page } = await login(false);
 
 
         // Esperar a que cargue la página principal

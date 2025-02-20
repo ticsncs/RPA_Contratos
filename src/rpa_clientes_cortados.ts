@@ -8,7 +8,7 @@ import { downloadFile } from './utils/handler-files';
         console.log('🤖 Iniciando proceso de revision de clientes con estado cortado...');
         
         // Iniciar sesión en el sistema
-        const { browser, page } = await login();
+        const { browser, page } = await login(false);
         // Esperar a que cargue la página principal
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
