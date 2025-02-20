@@ -1,5 +1,3 @@
-
-
 # Usa la imagen oficial de Playwright con Node.js
 FROM mcr.microsoft.com/playwright:focal
 
@@ -7,7 +5,7 @@ FROM mcr.microsoft.com/playwright:focal
 WORKDIR /app
 
 # Copia los archivos de configuración
-COPY package.json package-lock.json tsconfig.json ./ 
+COPY package.json package-lock.json tsconfig.json ./
 
 # Instala las dependencias del proyecto
 RUN npm install && npx playwright install --with-deps
@@ -20,6 +18,10 @@ COPY src/ ./src/
 
 # Crea directorios para los archivos generados
 RUN mkdir -p /app/src/Files /app/src/Session
+
+# Define volúmenes para los directorios donde se almacenarán los archivos
+VOLUME /app/src/Files
+VOLUME /app/src/Session
 
 # Comando de inicio (modifícalo según el bot que quieres ejecutar)
 CMD ["ts-node", "src/rpa_contratos_full.ts"]
