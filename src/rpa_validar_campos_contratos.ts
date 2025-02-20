@@ -8,11 +8,13 @@ import { downloadFile, generateReport } from './utils/handler-files';
 
     try {
         console.log('🤖 Iniciando proceso de validación de campos...');
-       
         // Iniciar sesión en el sistema
         const { browser, page } = await login();
 
+
         // Esperar a que cargue la página principal
+
+        console.log('🔍 Esperando a que cargue la página principal...');
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
         // Click sobre el Favoritos
