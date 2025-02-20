@@ -37,5 +37,5 @@ jobs:
           script: |
             docker pull alexhm95/rpa_odoo:latest
             docker stop f4064af2d876  || true
-            docker rm f4064af2d876  || true
-            docker run -d --name f4064af2d876  alexhm95/rpa_odoo:latest
+            docker rm f4064af2d876  || true 
+            docker run -d --name f4064af2d876 -v /home/proyectos/Robots/Files:/app/src/Files -v /home/proyectos/Robots/Session:/app/src/Session alexhm95/rpa_odoo:latest

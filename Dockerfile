@@ -16,5 +16,12 @@ RUN npm install -g ts-node
 # Copia todo el código fuente
 COPY src/ ./src/
 
+# Crea directorios para los archivos generados
+RUN mkdir -p /app/src/Files /app/src/Session
+
+# Define volúmenes para los directorios donde se almacenarán los archivos
+VOLUME /app/src/Files
+VOLUME /app/src/Session
+
 # Comando de inicio (modifícalo según el bot que quieres ejecutar)
 CMD ["ts-node", "src/rpa_contratos_full.ts"]
