@@ -6,6 +6,12 @@ import { downloadFile } from './utils/handler-files';
     try {
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos... Pruebasasasaasdsasnjandjbdsfjbsajkdbsakjb');
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+
 
         // Iniciar sesión en el sistema
         const { browser, page } = await login();
