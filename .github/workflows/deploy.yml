@@ -3,8 +3,8 @@ name: Deploy RPA Docker
 on:
   push:
     branches:
-      - main  # O la rama que uses para producción
-  workflow_dispatch:  # Permite ejecutar manualmente
+      - main  # Cambia a la rama que usas para producción (main, master, etc.)
+  workflow_dispatch:  # Permite ejecutar manualmente desde la interfaz de GitHub
 
 jobs:
   build-and-push:
