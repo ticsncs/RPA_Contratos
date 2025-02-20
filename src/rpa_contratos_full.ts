@@ -14,6 +14,8 @@ import { downloadFile } from './utils/handler-files';
 
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
 
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
