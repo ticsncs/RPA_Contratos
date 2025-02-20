@@ -33,11 +33,11 @@ export async function downloadFile(page: Page, buttonSelector: string, filePrefi
             downloadedFilePath = path.join(config.downloadPath, newFileName);
             fs.renameSync(originalFilePath, downloadedFilePath);
             
-            await sendSlackMessage(`✅ Archivo descargado y renombrado: ${downloadedFilePath}`);
+            console.log(`✅ Archivo descargado y renombrado: ${downloadedFilePath}`);
             return downloadedFilePath;
         } catch (err) {
             attempts++;
-            await sendSlackMessage(`⚠️ Reintentando descarga (${attempts}/2)...`);
+            console.log(`⚠️ Reintentando descarga (${attempts}/2)...`);
             if (attempts === 2) {
                 throw new Error('No se pudo descargar el archivo después de dos intentos.');
             }
@@ -162,11 +162,11 @@ async function generatePDFReport(
 
         doc.end();
         stream.on('finish', async () => {
-            await sendSlackMessage(`📄 Reporte generado: ${pdfFilePath}`);
+            console.log(`📄 Reporte generado: ${pdfFilePath}`);
             resolve(pdfFilePath);
         });
     } else {
-        await sendSlackMessage('✅ No se encontraron campos vacíos en los datos.');
+        console.log('✅ No se encontraron campos vacíos en los datos.');
         resolve(null);
     }
 }
