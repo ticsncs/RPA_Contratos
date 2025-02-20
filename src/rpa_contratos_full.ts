@@ -4,6 +4,7 @@ import { downloadFile } from './utils/handler-files';
 (async () => {
 
     try {
+        console.log('🤖 Iniciando proceso de  exportación de todos los contratos... Pruebasasasasnjandjbdsfjbsajkdbsakjb');
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
 
         // Iniciar sesión en el sistema
