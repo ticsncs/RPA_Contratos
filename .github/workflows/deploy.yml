@@ -18,7 +18,7 @@ jobs:
         run: echo "Byronde1995." | docker login -u "alexhm95" --password-stdin
 
       - name: Build and tag Docker image
-        run: docker build -f RPA_Contratos/Dockerfile -t alexhm95/rpa_contratos:latest .
+        run: docker build -f Dockerfile -t alexhm95/rpa_contratos:latest .
 
       - name: Push Docker image
         run: docker push alexhm95/rpa_contratos:latest
