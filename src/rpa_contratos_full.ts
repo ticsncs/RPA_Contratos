@@ -4,26 +4,6 @@ import { downloadFile } from './utils/handler-files';
 (async () => {
 
     try {
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos... Pruebasasasaasdsasnjandjbdsfjbsajkdbsakjb');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-        console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
 
 
