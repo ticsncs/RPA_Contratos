@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            docker pull usuario/docker-rpa:latest
-            docker stop rpa_container || true
-            docker rm rpa_container || true
-            docker run -d --name rpa_container usuario/docker-rpa:latest
+            docker pull alexhm95/rpa_contratos:latest
+            docker stop f4064af2d876  || true
+            docker rm f4064af2d876  || true
+            docker run -d --name f4064af2d876  alexhm95/rpa_contratos:latest
