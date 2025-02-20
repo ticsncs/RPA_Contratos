@@ -18,10 +18,10 @@ jobs:
         run: echo "Byronde1995." | docker login -u "alexhm95" --password-stdin
 
       - name: Build and tag Docker image
-        run: docker build -f Dockerfile -t alexhm95/rpa_contratos:latest .
+        run: docker build -f Dockerfile -t alexhm95/rpa_odoo:latest .
 
       - name: Push Docker image
-        run: docker push alexhm95/rpa_contratos:latest
+        run: docker push alexhm95/rpa_odoo:latest
 
   deploy:
     needs: build-and-push
@@ -35,7 +35,7 @@ jobs:
           username: proyectos
           password: proyectos25
           script: |
-            docker pull alexhm95/rpa_contratos:latest
+            docker pull alexhm95/rpa_odoo:latest
             docker stop f4064af2d876  || true
             docker rm f4064af2d876  || true
-            docker run -d --name f4064af2d876  alexhm95/rpa_contratos:latest
+            docker run -d --name f4064af2d876  alexhm95/rpa_odoo:latest
