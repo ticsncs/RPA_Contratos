@@ -9,22 +9,7 @@ export async function login() {
     const hasSession = fs.existsSync(sessionFilePath);
     console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
 
-    //const browser = await chromium.launch({ headless: true });
-    const browser = await chromium.launch({
-        headless: true,  // Modo sin interfaz gráfica
-        args: [
-            '--disable-dev-shm-usage',  // Reduce problemas de memoria en entornos sin GUI
-            '--disable-gpu',            // Desactiva el uso de GPU
-            '--no-sandbox',             // Permite ejecutar sin permisos elevados
-            '--disable-setuid-sandbox', // Desactiva restricciones de sandboxing
-            '--disable-extensions',     // Evita problemas con extensiones
-            '--disable-background-networking',
-            '--disable-software-rasterizer',
-            '--mute-audio',
-            '--disable-blink-features=AutomationControlled'
-        ]
-    });
-    
+    const browser = await chromium.launch({ headless: true });
     const context = hasSession
         ? await browser.newContext({ acceptDownloads: true, storageState: sessionFilePath })
         : await browser.newContext({ acceptDownloads: true });

@@ -2,11 +2,11 @@
   "name": "rpa_contratos",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "contratos": "node rpa_contratos_full.js",
-    "cortados": "node rpa_cortados.js"
-  },
+ "scripts": {
+  "build": "tsc",
+  "contratos": "node dist/rpa_contratos_full.js",
+  "cortados": "node dist/rpa_cortados.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

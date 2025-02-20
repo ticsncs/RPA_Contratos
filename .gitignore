@@ -1,3 +1,8 @@
+node_modules
+npm-debug.log
+.env
+
+
 # Node.js
 node_modules/
 npm-debug.log
@@ -94,3 +99,13 @@ Files/
 
 # Session files
 Session/
+
+
+
+# Files directory
+src/Files/
+
+# Session files
+src/Session/
+
+rpa_contratos.tar
