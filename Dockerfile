@@ -1,3 +1,5 @@
+
+
 # Usa la imagen oficial de Playwright con Node.js
 FROM mcr.microsoft.com/playwright:focal
 
