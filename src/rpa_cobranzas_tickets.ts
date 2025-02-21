@@ -39,41 +39,54 @@ async function runAutomation() {
 
     // 🔹 Rellenar campo de título del ticket
     console.log('📝 Rellenando campo de título del ticket...');
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'fill', { text: 'PAGOS Y COBRANZAS' });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'press', { key: 'Tab' });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'press', { key: 'Tab' });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'press', { key: 'Tab' });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'press', { key: 'Tab' });
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_group', 'wait', { waitTime: 3000 });
 
+    await interactWithElement(page, 'input[name="name"]', 'fill', { text: 'ticket automatizado : Corte clientes por 5 dias' });
 
-    await interactWithElement(page, 'label:has-text("Canal")', 'paste', { text: 'PÁGINA WEB' });
-
-    // 🔹 Seleccionar la primera opción del dropdown
-    await interactWithElement(page, '#o_field_input_2607', 'fill', { text: 'PAGOS Y COBRANZAS' });
-    await interactWithElement(page, 'input.ui-autocomplete-input', 'wait', { waitTime: 2000 });
-    await interactWithElement(page, '.ui-autocomplete li:first-child', 'click');
-
-
-
-    await interactWithElement(page, 'input.ui-autocomplete-input', 'press', { key: 'Enter' });
-  
+    // Interactuar con el campo "Equipo"
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'fill', { text: 'PAGOS Y COBRANZAS' });
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'press', { key: 'Enter' });
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'doubleClick');
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'press', { key: 'Tab' });
     
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'fill', { text: 'PÁGINA WEB' });
+    // Interactuar con el campo "Usuario asignado"
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'fill', { text: '	GALAN CORDOVA WILLAN ALEXANDER' });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'doubleClick');
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'press', { key: 'Tab' });
 
-    await interactWithElement(page, 'div.o_input_dropdown input.o_input.ui-autocomplete-input', 'press', { key: 'Enter' });
 
-    await page.pause();
-    // Esperar a que aparezca la lista de opciones
-    //await page.waitForSelector('.ui-autocomplete', { timeout: 5000 });
     
-    // Seleccionar la primera opción del dropdown
-    //await interactWithElement(page, '.ui-autocomplete li:first-child', 'click'); await page.waitForTimeout(3000);
+    // Interactuar con el campo "Canal"
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'fill', { text: 'PÁGINA WEB' });
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'press', { key: 'Enter' });
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'doubleClick');
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'press', { key: 'Tab' });
+
+     // Interactuar con el campo "Categoria"
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'fill', { text: 'Pagos y cobranzas' });
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'press', { key: 'Enter' });
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'doubleClick');
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'press', { key: 'Tab' });
+
+     // Interactuar con el campo "Etiqueta"
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'wait', { waitTime: 2000 });        
+
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'fill', { text: 'NO PROCEDENTE' });
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'doubleClick');
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Tab' });
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
+     
+     // Guardar ticket
+    await interactWithElement(page, 'button.btn:has-text("Guardar")', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, 'button.btn:has-text("Guardar")', 'click');
+    await page.waitForTimeout(5000);
     await browser.close();
+    await page.pause();
     
     console.log('✅ ¡Proceso completado con éxito!');
   } catch (error) {
