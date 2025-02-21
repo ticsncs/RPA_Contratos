@@ -2,11 +2,11 @@
   "name": "rpa_contratos",
   "version": "1.0.0",
   "main": "index.js",
- "scripts": {
-  "build": "tsc",
-  "contratos": "node dist/rpa_contratos_full.js",
-  "cortados": "node dist/rpa_cortados.js"
-},
+  "scripts": {
+    "build": "tsc",
+    "contratos": "node dist/rpa_contratos_full.js",
+    "cortados": "node dist/rpa_cortados.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,11 +15,14 @@
     "@slack/web-api": "^7.7.0",
     "csv-parser": "^3.2.0",
     "dotenv": "^16.4.5",
+    "p-limit": "^6.2.0",
     "pdfkit": "^0.16.0",
     "playwright": "^1.49.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/pdfkit": "^0.13.9"
+    "@types/pdfkit": "^0.13.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
