@@ -53,7 +53,7 @@ import { downloadFile, generateReport } from './utils/handler-files';
         await interactWithElement(page, 'select.o_exported_lists_select', 'wait' , { waitTime: 2000 });
         
         // Empieza el proceso de descarga del archivo
-        const downloadedFilePath = await downloadFile(page, '.modal-footer > .btn-primary', 'validador_campos');
+        const downloadedFilePath = await downloadFile(page, '.modal-footer > .btn-primary', 'validador_campos', 'xslx');
 
         // Generar el reporte de contratos con campos vacíos si se descargó el archivo
         if (downloadedFilePath) {
