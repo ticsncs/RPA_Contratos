@@ -46,12 +46,14 @@ async function runAutomation() {
     // Interactuar con el campo "Equipo"
     await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'wait', { waitTime: 2000 });
     await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'fill', { text: 'PAGOS Y COBRANZAS' });
+    
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'click');
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'press', { key: 'ArrowDown' });
     await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'press', { key: 'Enter' });
-    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'doubleClick');
-    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'press', { key: 'Tab' });
     
     // Interactuar con el campo "Usuario asignado"
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="team_id"] input.o_input', 'wait', { waitTime: 7000 });
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'fill', { text: '	GALAN CORDOVA WILLAN ALEXANDER' });
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'doubleClick');
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'press', { key: 'Tab' });
@@ -66,20 +68,18 @@ async function runAutomation() {
     await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'press', { key: 'Tab' });
 
      // Interactuar con el campo "Categoria"
-    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'wait', { waitTime: 7000 });
     await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'fill', { text: 'Pagos y cobranzas' });
+    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'wait', { waitTime: 5000 });
+
     await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'press', { key: 'Enter' });
-    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'doubleClick');
-    await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'press', { key: 'Tab' });
 
      // Interactuar con el campo "Etiqueta"
-     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'wait', { waitTime: 2000 });        
+     await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'wait', { waitTime: 7000 });        
 
      await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'fill', { text: 'NO PROCEDENTE' });
      await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
-     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'doubleClick');
      await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Tab' });
-     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
      
      // Guardar ticket
     await interactWithElement(page, 'button.btn:has-text("Guardar")', 'wait', { waitTime: 2000 });
