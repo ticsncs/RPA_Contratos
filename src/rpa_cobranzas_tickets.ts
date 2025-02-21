@@ -78,8 +78,9 @@ async function runAutomation() {
      await interactWithElement(page, '.o_field_widget[name="category_id"] input.o_input', 'wait', { waitTime: 7000 });        
 
      await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'fill', { text: 'NO PROCEDENTE' });
-     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
      await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Tab' });
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'wait', { waitTime: 7000 });
+     await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
      
      // Guardar ticket
     await interactWithElement(page, 'button.btn:has-text("Guardar")', 'wait', { waitTime: 2000 });
