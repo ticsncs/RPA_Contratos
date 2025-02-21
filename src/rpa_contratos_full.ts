@@ -8,7 +8,7 @@ import { downloadFile } from './utils/handler-files';
 
 
         // Iniciar sesión en el sistema
-        const { browser, page } = await login(false);
+        const { browser, page } = await login(true);
         
         // Esperar a que cargue la página principal
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
