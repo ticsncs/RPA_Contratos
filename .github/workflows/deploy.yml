@@ -38,4 +38,4 @@ jobs:
             docker pull alexhm95/rpa_odoo:latest
             docker stop rpa_odoo_container || true
             docker rm rpa_odoo_container || true
-            docker run -d --name rpa_odoo_container alexhm95/rpa_odoo:latest
+            docker run -d --name rpa_odoo_container -v /home/proyectos/Robots/Files:/app/src/Files -v /home/proyectos/Robots/Session:/app/src/Session   alexhm95/rpa_odoo:latest
