@@ -4,7 +4,7 @@ const TICKETS_FILE = 'tickets_generados.json';
 /**
  * Cargar los tickets ya generados desde un archivo JSON.
  */
-function loadGeneratedTickets(): Set<string> {
+export function loadGeneratedTickets(): Set<string> {
     if (!fs.existsSync(TICKETS_FILE)) {
         fs.writeFileSync(TICKETS_FILE, JSON.stringify([])); // Crear archivo si no existe
     }

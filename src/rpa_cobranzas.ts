@@ -1,9 +1,7 @@
-import { interactWithElement } from './utils/handler-elements';
-import { login } from './core/login';
-import { downloadFile } from './utils/handler-files';
 import { runAutomation } from './rpa_create_ticket';
 import { runClientExportAutomation } from './rpa_clientes_cortados';
 import { ClientOffData } from './core/interfaces/interface-client';
+import { loadGeneratedTickets } from '../src/utils/handler-bdTemporal';
 import fs from 'fs';
 import csvParser from 'csv-parser';
 
@@ -52,14 +50,20 @@ async function generateTicketsForCortados() {
 
         console.log(`✅ ${clientsData.length} clientes cortados encontrados.`);
 
+        // Cargar tickets ya generados
+        const generatedTickets = loadGeneratedTickets();
+
         const fechaHoy = new Date();
 
+        // Filtro 5 dias
         const fecha5Dias = new Date(fechaHoy);
         fecha5Dias.setDate(fecha5Dias.getDate() - 5);
 
+        // Filtro 20 dias
         const fecha20Dias = new Date(fechaHoy);
         fecha20Dias.setDate(fecha20Dias.getDate() - 20);
 
+        // Filtro 1 mes
         const fecha1Mes = new Date(fechaHoy);
         fecha1Mes.setMonth(fecha1Mes.getMonth() - 1);
 
@@ -102,6 +106,9 @@ async function generateTicketsForCortados() {
                 category: 'Pagos y cobranzas',
                 tag: '',
                 });
+
+                // Registrar el cliente en la lista de tickets generados
+            generatedTickets.add(cliente.Cedula);
         }
 
         for (const cliente of clientes20Dias) {
@@ -116,6 +123,8 @@ async function generateTicketsForCortados() {
                 category: 'Pagos y cobranzas',
                 tag: '',
                 });
+                // Registrar el cliente en la lista de tickets generados
+            generatedTickets.add(cliente.Cedula);
         }
 
         for (const cliente of clientes1Mes) {
@@ -130,6 +139,8 @@ async function generateTicketsForCortados() {
                 category: 'Pagos y cobranzas',
                 tag: '',
                 });
+                // Registrar el cliente en la lista de tickets generados
+            generatedTickets.add(cliente.Cedula);
         }
         
         console.log('✅ Todos los tickets han sido generados correctamente.');
