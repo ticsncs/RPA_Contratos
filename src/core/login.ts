@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../core/config';
-import { interactWithElement } from '../utils/handler-error';
+import { interactWithElement } from '../utils/handler-elements';
 
 export async function login(view:boolean) {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');

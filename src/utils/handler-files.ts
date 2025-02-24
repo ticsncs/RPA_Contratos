@@ -4,7 +4,7 @@ import csv from 'csv-parser';
 import PDFDocument from 'pdfkit';
 import { config } from '../core/config';
 import { sendSlackMessage } from '../core/alertSlack';
-import { interactWithElement } from '../utils/handler-error';
+import { interactWithElement } from './handler-elements';
 
 import { Page } from 'playwright';
 import xlsx from 'xlsx';

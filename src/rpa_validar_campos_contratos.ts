@@ -1,5 +1,5 @@
 
-import { interactWithElement } from './utils/handler-error';
+import { interactWithElement } from './utils/handler-elements';
 
 import { login } from './core/login';
 import { downloadFile, generateReport } from './utils/handler-files';

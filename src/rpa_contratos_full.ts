@@ -1,5 +1,5 @@
 import { login } from './core/login';
-import { interactWithElement } from './utils/handler-error';
+import { interactWithElement } from './utils/handler-elements';
 import { downloadFile } from './utils/handler-files';
 (async () => {
 
