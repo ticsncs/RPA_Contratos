@@ -15,7 +15,7 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
     console.log('🔗 Navegando a la página de inicio de sesión...');
     
     // Iniciar sesión en el sistema
-    const { browser, page } = await login(false);
+    const { browser, page } = await login(true);
 
     const interactSafely = async (selector: string, action: string, options: object = {}) => {
       try {
