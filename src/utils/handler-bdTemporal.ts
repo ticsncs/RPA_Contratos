@@ -17,13 +17,13 @@ export function loadGeneratedTickets(): Set<string> {
 /**
  * Guardar nuevos tickets generados en el archivo JSON.
  */
-function saveGeneratedTickets(generatedTickets: Set<string>) {
+export function saveGeneratedTickets(generatedTickets: string): void {
     fs.writeFileSync(TICKETS_FILE, JSON.stringify(Array.from(generatedTickets), null, 2));
 }
 
 /**
  * Verificar si un cliente ya tiene un ticket generado.
  */
-function hasTicketAlreadyGenerated(clientId: string, generatedTickets: Set<string>): boolean {
+export function hasTicketAlreadyGenerated(clientId: string, generatedTickets: Set<string>): boolean {
     return generatedTickets.has(clientId);
 }

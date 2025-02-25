@@ -77,9 +77,9 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
     const userAsigned = await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
     await interactWithElement(page, `li.ui-menu-item:has-text("${ticketData.assignedUser}")`, 'click');
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'click');
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
 
     // Interactuar con el campo "Canal"
     await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'wait', { waitTime: 2000 });
@@ -108,18 +108,19 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
 
     // Guardar ticket
     console.log('💾 Guardando ticket...');
-    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Guardar")', 'click');
+    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Descartar")', 'click');
     await page.waitForTimeout(2000);
 
+  
+    await browser.close();
     if (btnGuardar || category || userChannel || userAsigned || team) {
-      console.log('✅ Ticket creado con éxito');
+      return true;
     } else {
+      return false;
       console.error('❌ Error al crear el ticket - No se han rellenado los campos correctamente del usuario:', searchText);
       
     }
 
-    await browser.close();
-    console.log('✅ ¡Proceso completado con éxito!');
   } catch (error) {
     console.error('❌ Error durante la automatización:', error);
   } finally {
@@ -156,30 +157,4 @@ export async function runRobotsInParallel(usersData: UserData[], concurrency: nu
   console.timeEnd('Tiempo total de ejecución');
 }
 */
-// Ejemplo de uso:
-const usersData = [
-  {
-    searchText: '0123456789',
-    ticketData: {
-      user: 'USUARIO PRUEBAS DE ACTIVACION',
-      title: 'RPA : Corte clientes por 5 dias',// Cambiar los dias segun la sentencia
-      team: 'PAGOS Y COBRANZAS',
-      assignedUser: 'Daniel Alejandro Jimenez Zhingre',
-      channel: 'Personalizado',
-      category: 'Pagos y cobranzas',
-      tag: 'NO PROCEDENTE',//No poner
-    }
-  },
-  {
-    searchText: '9876543210',
-    ticketData: {
-      user: 'USUARIO PRUEBAS 2',
-      title: 'ticket automatizado : Reconexión',
-      team: 'SOPORTE TECNICO',
-      assignedUser: 'JUAN PEREZ',
-      channel: 'TELEFONO',
-      category: 'Soporte Técnico',
-      tag: 'URGENTE',
-    }
-  }
-];
+
