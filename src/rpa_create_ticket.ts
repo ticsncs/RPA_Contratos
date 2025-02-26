@@ -108,7 +108,7 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
 
     // Guardar ticket
     console.log('💾 Guardando ticket...');
-    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Descartar")', 'click');
+    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Guardar")', 'click');
     await page.waitForTimeout(2000);
 
   

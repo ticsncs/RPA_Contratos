@@ -88,6 +88,8 @@ async function generateTicketsForCortados() {
  * Se ejecuta un ticket cada 30 segundos para evitar saturar Odoo.
  */
 async function generarTickets(clientes: ClientOffData[], descripcion: string) {
+    
+    const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
     if (clientes.length === 0) {
         console.log(`⚠️ No hay clientes para generar tickets (${descripcion}).`);
         return;
@@ -101,7 +103,7 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
         try {
            const clientes = await runAutomation(cliente.Cliente, {
                 user: cliente.Cedula,
-                title: `RPA : Corte clientes por ${descripcion}`,
+                title: `RPA  ${today}: Corte clientes por ${descripcion}`,
                 team: 'PAGOS Y COBRANZAS',
                 assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
                 channel: 'PERSONALIZADO',
