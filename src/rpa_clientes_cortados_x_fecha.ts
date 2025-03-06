@@ -15,14 +15,11 @@ export async function runClientExportAutomation(status = 'Cortado', exportTempla
         console.log(`🤖 Iniciando proceso de revisión de clientes con estado: ${status}...`);
         
         // Iniciar sesión en el sistema
-        const { browser, page } = await login(true);
+        const { browser, page } = await login(false);
 
         // Esperar a que cargue la página principal
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
-        // Seleccionar el estado dinámicamente
-        await interactWithElement(page, `label:has-text("${status}")`, 'wait', { waitTime: 2000 });
-        await interactWithElement(page, `label:has-text("${status}")`, 'click');
 
         // Filtros por fecha
         await page.getByRole('button', { name: ' Filtros' }).click();
@@ -31,6 +28,9 @@ export async function runClientExportAutomation(status = 'Cortado', exportTempla
         await page.getByRole('textbox').fill(fechaCorte);
         await page.getByRole('button', { name: 'Aplicar' }).click();
         
+        // Seleccionar el estado dinámicamente
+        await interactWithElement(page, `label:has-text("${status}")`, 'wait', { waitTime: 2000 });
+        await interactWithElement(page, `label:has-text("${status}")`, 'click');
 
         // Seleccionar todos los clientes en ese estado
         await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 2000 });

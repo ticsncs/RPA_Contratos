@@ -101,7 +101,9 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
         console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${descripcion})`);
 
         try {
-           const clientes = await runAutomation(cliente.Cliente, {
+           const clientes = await runAutomation(
+            cliente.Código,
+            {
                 user: cliente.Cedula,
                 title: `RPA  ${today}: Corte clientes por ${descripcion}`,
                 team: 'PAGOS Y COBRANZAS',
@@ -109,7 +111,9 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
                 channel: 'PERSONALIZADO',
                 category: 'Pagos y cobranzas',
                 tag: '',
-            });
+            },
+            "Cortado"
+        );
 
             if (clientes === false) {
                 saveGeneratedTickets(`${cliente.Cliente} (${descripcion}) - Error al generar ticket`);
@@ -161,6 +165,7 @@ async function readCSV(filePath: string): Promise<ClientOffData[]> {
                     ...data,
                     FechaCorte: data['Fecha de Corte'] || data.FechaCorte || '',
                     Cedula: (data['Cliente'] || data.Cedula || '').substring(0, 13).replace(/\D/g, ''),
+                    Codigo: data['Código'] || data.Codigo || '',
                 };
                 results.push(normalizedData);
             })

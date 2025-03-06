@@ -9,13 +9,13 @@ import { UserData, TicketData } from './core/interfaces/interface-ticket';
  * @param {string} searchText - Texto a buscar en el sistema
  * @param {object} ticketData - Datos para rellenar el ticket
  */
-export async function runAutomation(searchText: string, ticketData: TicketData) {
+export async function runAutomation(searchText: string, ticketData: TicketData,status: string) {
   try {
     console.time('Tiempo de ejecución');
     console.log('🔗 Navegando a la página de inicio de sesión...');
     
     // Iniciar sesión en el sistema
-    const { browser, page } = await login(true);
+    const { browser, page } = await login(false);
 
     const interactSafely = async (selector: string, action: string, options: object = {}) => {
       try {
@@ -29,11 +29,20 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
 
     // 🔹 Esperar a que cargue la lista de registros
     console.log('⏳ Esperando carga de la lista de registros...');
+    
+    await interactWithElement(page, `label:has-text("${status}")`, 'wait', { waitTime: 2000 });
+    await interactWithElement(page, `label:has-text("${status}")`, 'click');
     await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 3000 });
 
     // 🔹 Búsqueda de registro
     console.log(`🔍 Buscando registro: ${searchText}...`);
-    await interactWithElement(page, '[placeholder="Búsqueda..."]', 'fill', { text: searchText });
+    // Filtros por fecha
+    await page.getByRole('button', { name: ' Filtros' }).click();
+    await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
+    await page.getByRole('combobox').first().selectOption('name');
+    await page.getByRole('textbox').fill("CT-99999");
+    await page.getByRole('button', { name: 'Aplicar' }).click();
+
     await interactWithElement(page, '[placeholder="Búsqueda..."]', 'press', { key: 'Enter' });
     await interactWithElement(page, '[placeholder="Búsqueda..."]', 'wait', { waitTime: 2000 });
 
@@ -74,11 +83,12 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
 
 
     // Interactuar con el campo "Usuario asignado"
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 7000 });
-    const userAsigned = await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
+   const userAsigned = await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
     await interactWithElement(page, `li.ui-menu-item:has-text("${ticketData.assignedUser}")`, 'click');
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'click');
+    
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
 
     // Interactuar con el campo "Canal"
@@ -127,6 +137,21 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
     console.timeEnd('Tiempo de ejecución');
   }
 }
+/*
+// Ejemplo de uso:
+runAutomation(
+  "CT-99999",
+  {
+      user: "0123456789",
+      title: `RPA  : Corte clientes por `,
+      team: 'PAGOS Y COBRANZAS',
+      assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
+      channel: 'PERSONALIZADO',
+      category: 'Pagos y cobranzas',
+      tag: '',
+  },
+  "Cortado"
+);*/
 
 /**
  * Función para ejecutar múltiples robots en paralelo con datos dinámicos
