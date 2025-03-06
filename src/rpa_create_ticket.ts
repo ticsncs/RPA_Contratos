@@ -74,12 +74,12 @@ export async function runAutomation(searchText: string, ticketData: TicketData) 
 
 
     // Interactuar con el campo "Usuario asignado"
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 7000 });
     const userAsigned = await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
     await interactWithElement(page, `li.ui-menu-item:has-text("${ticketData.assignedUser}")`, 'click');
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'click');
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
 
     // Interactuar con el campo "Canal"
     await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'wait', { waitTime: 2000 });
