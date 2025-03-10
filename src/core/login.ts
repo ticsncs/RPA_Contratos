@@ -4,7 +4,7 @@ import path from 'path';
 import { config } from '../core/config';
 import { interactWithElement } from '../utils/handler-elements';
 
-export async function login(view:boolean) {
+export async function login(view:boolean, urlWork:string) {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');
     const hasSession = fs.existsSync(sessionFilePath);
     console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
@@ -29,5 +29,6 @@ export async function login(view:boolean) {
         await context.storageState({ path: sessionFilePath });
     }
 
+    await page.goto(urlWork, { waitUntil: 'domcontentloaded', timeout: 60000 });
     return { browser, page };
 }
