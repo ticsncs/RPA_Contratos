@@ -9,6 +9,7 @@ import { UserData, TicketData } from './core/interfaces/interface-ticket';
  * @param {string} searchText - Texto a buscar en el sistema
  * @param {object} ticketData - Datos para rellenar el ticket
  */
+
 export async function runAutomation(searchText: string, ticketData: TicketData,status: string) {
   try {
     console.time('Tiempo de ejecución');
@@ -29,9 +30,6 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
 
     // 🔹 Esperar a que cargue la lista de registros
     console.log('⏳ Esperando carga de la lista de registros...');
-    
-    await interactWithElement(page, `label:has-text("${status}")`, 'wait', { waitTime: 2000 });
-    await interactWithElement(page, `label:has-text("${status}")`, 'click');
     await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 3000 });
 
     // 🔹 Búsqueda de registro
@@ -40,8 +38,10 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
     await page.getByRole('button', { name: ' Filtros' }).click();
     await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
     await page.getByRole('combobox').first().selectOption('name');
-    await page.getByRole('textbox').fill("CT-99999");
+    await page.getByRole('textbox').fill(searchText);
     await page.getByRole('button', { name: 'Aplicar' }).click();
+
+
 
     await interactWithElement(page, '[placeholder="Búsqueda..."]', 'press', { key: 'Enter' });
     await interactWithElement(page, '[placeholder="Búsqueda..."]', 'wait', { waitTime: 2000 });
@@ -86,10 +86,11 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
     await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
    const userAsigned = await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
     await interactWithElement(page, `li.ui-menu-item:has-text("${ticketData.assignedUser}")`, 'click');
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'click');
-    
-    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 7000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'press', { key: 'ArrowDown' });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'press', { key: 'ArrowDown' });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'press', { key: 'Enter' });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
 
     // Interactuar con el campo "Canal"
     await interactWithElement(page, '.o_field_widget[name="channel_id"] input.o_input', 'wait', { waitTime: 2000 });
@@ -114,20 +115,29 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
       await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'wait', { waitTime: 2000 });
       await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'press', { key: 'Enter' });
       await interactWithElement(page, '.o_field_widget[name="tag_ids"] input.o_input', 'wait', { waitTime: 2000 });
+
     } 
 
     // Guardar ticket
     console.log('💾 Guardando ticket...');
-    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Guardar")', 'click');
-    await page.waitForTimeout(2000);
-
+    const btnGuardar = await interactWithElement(page, 'button.btn:has-text("Guardar")', 'wait', { waitTime: 2000 });
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await interactWithElement(page, 'button:has-text("Editar")', 'wait', { waitTime: 4000 });
+    await interactWithElement(page, 'button:has-text("Editar")', 'doubleClick');
+    await interactWithElement(page, 'button:has-text("Editar")', 'wait', { waitTime: 5000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'wait', { waitTime: 2000 });
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input', 'fill', { text: ticketData.assignedUser });
+    await interactWithElement(page, `li.ui-menu-item:has-text("${ticketData.assignedUser}")`, 'click');
+    await interactWithElement(page, '.o_field_widget[name="user_id"] input.o_input',  'wait', { waitTime: 5000 });
+    await interactWithElement(page, 'button.btn:has-text("Guardar")', 'wait', { waitTime: 2000 });
+    await page.getByRole('button', { name: 'Guardar' }).click();
   
     await browser.close();
     if (btnGuardar || category || userChannel || userAsigned || team) {
       return true;
     } else {
-      return false;
       console.error('❌ Error al crear el ticket - No se han rellenado los campos correctamente del usuario:', searchText);
+      return false;
       
     }
 
@@ -137,6 +147,7 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
     console.timeEnd('Tiempo de ejecución');
   }
 }
+
 /*
 // Ejemplo de uso:
 runAutomation(
@@ -151,7 +162,8 @@ runAutomation(
       tag: '',
   },
   "Cortado"
-);*/
+);
+*/
 
 /**
  * Función para ejecutar múltiples robots en paralelo con datos dinámicos

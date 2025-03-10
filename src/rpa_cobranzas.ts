@@ -4,6 +4,7 @@ import { ClientOffData } from './core/interfaces/interface-client';
 import { loadGeneratedTickets, saveGeneratedTickets } from '../src/utils/handler-bdTemporal';
 import fs from 'fs';
 import csvParser from 'csv-parser';
+import PDFDocument from 'pdfkit';
 import { save } from 'pdfkit';
 
 /**
@@ -40,6 +41,8 @@ const procesarClientesCortados = async (dias: number, unidad: "days" | "months",
  * Función para obtener la lista de clientes cortados y generar tickets automáticamente.
  */
 async function generateTicketsForCortados() {
+    const errores: { Cliente: string, Codigo: string, Descripcion: string }[] = [];  // Para almacenar clientes con errores
+
     try {
         console.log('🔍 Obteniendo lista de clientes cortados...');
 
@@ -50,18 +53,29 @@ async function generateTicketsForCortados() {
             procesarClientesCortados(1, "months", "1_mes"),
         ]);
 
-        // Combinar todas las listas
-        const clientsData = [...clientsData5, ...clientsData20, ...clientsDataMes];
+        // Combinamos todas las listas y agregamos la descripción
+        let clientsData = [
+            ...clientsData5.map(client => ({ ...client, descripcion: "5 días" })),
+            ...clientsData20.map(client => ({ ...client, descripcion: "20 días" })),
+            ...clientsDataMes.map(client => ({ ...client, descripcion: "1 mes" }))
+        ];
+
+        // Depuramos para eliminar clientes duplicados
+        const processedCodes = new Set<string>(); // Para almacenar los códigos de los clientes procesados
+        clientsData = clientsData.filter(client => {
+            if (processedCodes.has(client.Código)) {
+                return false;
+            }
+            processedCodes.add(client.Código); // Marcamos el cliente como procesado
+            return true;
+        });
 
         if (clientsData.length === 0) {
             console.log('⚠️ No se encontraron clientes cortados.');
             return;
         }
 
-
-        console.log(`✅ ${clientsData.length} clientes cortados encontrados.`);
-
-
+        console.log(`✅ ${clientsData.length} clientes cortados únicos encontrados.`);
     
         console.table(clientsData5);
         console.table(clientsData20);
@@ -70,11 +84,38 @@ async function generateTicketsForCortados() {
         // Ejecutar robots de creación de tickets 
         console.log('🤖 Iniciando creación de tickets...')
         // Generar tickets en paralelo
-        await Promise.all([
-            generarTickets(clientsData5, "5 días"),
-            generarTickets(clientsData20, "20 días"), 
-            generarTickets(clientsDataMes, "1 mes"),
-        ]);
+        
+        
+        
+
+        // Generar tickets de manera secuencial
+        for (const cliente of clientsData) {
+            console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${cliente.descripcion})`);
+
+            try {
+                await generarTickets([cliente], cliente.descripcion); // Generar el ticket para el cliente
+                console.log(`✅ Ticket generado exitosamente para: ${cliente.Cliente} (${cliente.descripcion})`);
+            } catch (error) {
+                console.error(`❌ Error al generar ticket para ${cliente.Cliente} (${cliente.descripcion}):`, error);
+                // Si hay un error, agregar el cliente a la lista de errores
+                errores.push({
+                    Cliente: cliente.Cliente,
+                    Codigo: cliente.Código,
+                    Descripcion: cliente.descripcion
+                });
+            }
+
+            console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Esperar 30 segundos
+        }
+
+        
+
+        // Si hubo errores, generar el PDF
+        if (errores.length > 0) {
+            console.log('📑 Generando PDF con los errores...');
+            await generarPDFConErrores(errores); // Llamamos a la función para crear el PDF
+        }
 
         console.log('✅ Todos los tickets han sido generados correctamente.');
     } catch (error) {
@@ -82,6 +123,31 @@ async function generateTicketsForCortados() {
     }
 }
 
+/**
+ * Función para generar un PDF con los clientes que tuvieron errores al generar su ticket.
+ */
+async function generarPDFConErrores(errores: { Cliente: string, Codigo: string, Descripcion: string }[]) {
+    const doc = new PDFDocument();
+    const filePath = './errores_ticket.pdf';
+
+    // Establecer las opciones para el archivo PDF
+    doc.pipe(fs.createWriteStream(filePath));
+    doc.fontSize(16).text('Clientes con Errores en la Generación de Tickets', { align: 'center' });
+
+    // Agregar una tabla de errores
+    doc.fontSize(12).text('Clientes con errores:', { align: 'left' });
+    doc.moveDown(1);
+    doc.text('Nombre Cliente  |  Código Cliente  |  Descripción', { align: 'left' });
+
+    // Añadir los errores al PDF
+    errores.forEach((error) => {
+        doc.text(`${error.Cliente}  |  ${error.Codigo}  |  ${error.Descripcion}`, { align: 'left' });
+    });
+
+    // Finalizar el archivo PDF
+    doc.end();
+    console.log(`📂 PDF de errores generado en: ${filePath}`);
+}
 
 /**
  * Función para generar tickets a partir de una lista de clientes de forma secuencial.
@@ -128,7 +194,7 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
         }
 
         console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
-        await new Promise(resolve => setTimeout(resolve, 30000)); // Delay de 30 segundos
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Delay de 30 segundos
     }
 
     console.log(`✅ Todos los tickets para (${descripcion}) han sido generados correctamente.`);
