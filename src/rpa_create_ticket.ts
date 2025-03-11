@@ -16,7 +16,10 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
     console.log('🔗 Navegando a la página de inicio de sesión...');
     
     // Iniciar sesión en el sistema
-    const { browser, page } = await login(false);
+    const { browser, page } = await login(
+      false,
+      'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
+    );
 
     const interactSafely = async (selector: string, action: string, options: object = {}) => {
       try {
