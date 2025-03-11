@@ -43,8 +43,11 @@ export async function runClientExportAutomation(status = 'Cortado', exportTempla
         await page.getByRole('button', { name: ' Filtros' }).click();
         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
         await page.getByRole('combobox').first().selectOption('create_date');
-        await page.locator('#o_datepicker_2').getByRole('textbox').fill('01/01/2025 00:00:00');
-        await page.locator('#o_datepicker_3').getByRole('textbox').fill('10/01/2025 23:59:59');
+        await page.pause();
+        await page.keyboard.press('Tab');
+        await page.getByRole('textbox').fill('01/03/2025 00:00:00');
+        await page.keyboard.press('Tab');
+        await page.getByRole('textbox').fill('10/03/2025 23:59:59');
         await page.getByRole('button', { name: 'Aplicar' }).click();
         await page.getByRole('button', { name: ' Filtros' }).click();
                 
