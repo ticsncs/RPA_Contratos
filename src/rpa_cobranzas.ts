@@ -1,5 +1,6 @@
 import { runAutomation } from './rpa_create_ticket';
-import { runClientExportAutomation } from './rpa_clientes_cortados_x_fecha';
+import { runCutUsersExport } from './rpa_cut_users_by_date';
+import { runSearchTickets } from './rpa_search_tickets_by_date';
 import { ClientOffData } from './core/interfaces/interface-client';
 import { loadGeneratedTickets, saveGeneratedTickets } from '../src/utils/handler-bdTemporal';
 import fs from 'fs';
@@ -83,11 +84,85 @@ async function generateTicketsForCortados() {
 
         // Ejecutar robots de creación de tickets 
         console.log('🤖 Iniciando creación de tickets...')
-        // Generar tickets en paralelo
-        
-        
         
 
+        // Generar tickets en paralelo
+        // Generar tickets en paralelo
+        let tickets: { Código: string, Descripcion: string, Cantidad: number, Detalles: any[] }[] = [];
+
+        for (const client of clientsData) {  // Cambiado de "for...in" a "for...of"
+            let fechaInicio: string;
+            const fechaFin = new Date().toISOString().split('T')[0]; // Fecha actual
+
+            switch (client.descripcion) {
+                case "5 días":
+                    fechaInicio = obtenerFechaModificada(5, "days");
+                    break;
+                case "20 días":
+                    fechaInicio = obtenerFechaModificada(20, "days");
+                    break;
+                case "1 mes":
+                    fechaInicio = obtenerFechaModificada(1, "months");
+                    break;
+                default:
+                    fechaInicio = obtenerFechaModificada(1, "months");
+                    break;
+            }
+
+            console.log(`🎟 Generando ticket para: ${client.Código} desde ${fechaInicio} hasta ${fechaFin} (${client.descripcion})`);
+
+            try {
+                const result = await runSearchTickets(client.Código, fechaInicio, fechaFin);
+
+                if (!Array.isArray(result)) {
+                    console.warn(`⚠️ Resultado inválido para ${client.Código}`);
+                    continue;
+                }
+
+                // Filtrar registros válidos
+                const registrosValidos = result.filter(ticket => 
+                    Array.isArray(ticket) && ticket.length > 0 && ticket.some((field: string) => field.trim() !== '')
+                );
+
+                if (registrosValidos.length > 0) {
+                    tickets.push({
+                        Código: client.Código,
+                        Descripcion: client.descripcion,
+                        Cantidad: registrosValidos.length,
+                        Detalles: registrosValidos.map(ticket => ({
+                            TicketID: ticket[3] || "N/A",
+                            Descripción: ticket[4] || "N/A",
+                            Cliente: ticket[5] || "N/A",
+                            Responsable: ticket[6] || "N/A",
+                            FechaCreación: ticket[8] || "N/A",
+                            FechaCierre: ticket[9] || "N/A",
+                            Categoría: ticket[10] || "N/A",
+                            Estado: ticket[11] || "N/A"
+                        }))
+                    });
+                }
+            } catch (error) {
+                console.error(`❌ Error al generar ticket para ${client.Código}:`, error);
+            }
+        }
+
+        // 📋 Verificar si se generaron tickets antes de imprimir
+        if (tickets.length > 0) {
+            console.log('📋 Lista de tickets generados:');
+            console.table(tickets.map(ticket => ({
+                Código: ticket.Código,
+                Descripcion: ticket.Descripcion,
+                Cantidad: ticket.Cantidad,
+                Resultado: ticket.Detalles.length > 0 
+                    ? `${ticket.Detalles[0].Descripción} - ${ticket.Detalles[0].Cliente} - ${ticket.Detalles[0].FechaCreación} - ${ticket.Detalles[0].FechaCierre} - ${ticket.Detalles[0].Categoría} - ${ticket.Detalles[0].Estado}`
+                    : "Sin datos"
+            })));
+        } else {
+            console.log("⚠️ No se generaron tickets válidos.");
+        }
+
+        
+/*
         // Generar tickets de manera secuencial
         for (const cliente of clientsData) {
             console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${cliente.descripcion})`);
@@ -115,7 +190,7 @@ async function generateTicketsForCortados() {
         if (errores.length > 0) {
             console.log('📑 Generando PDF con los errores...');
             await generarPDFConErrores(errores); // Llamamos a la función para crear el PDF
-        }
+        }*/
 
         console.log('✅ Todos los tickets han sido generados correctamente.');
     } catch (error) {
@@ -208,7 +283,7 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
 async function downloadFileRPA(status: string, exportTemplate: string, fileName: string, fechaCorte: string): Promise<string | null> {
     try {
         console.log(`📥 Descargando archivo de clientes con estado: ${status}...`);
-        const result = await runClientExportAutomation(status, exportTemplate, fileName, fechaCorte);
+        const result = await runCutUsersExport(status, exportTemplate, fileName, fechaCorte);
         return result ?? null;
     } catch (error) {
         console.error('❌ Error al descargar archivo:', error);

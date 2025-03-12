@@ -5,14 +5,14 @@ import { List } from '@slack/web-api/dist/types/response/ChatPostMessageResponse
 
 /**
  * Función para revisar clientes con estado cortado y exportar la lista.
- * @param {string} code - Codigo del cliente.
+ * @param {string} Etapa - Etapa del ticket.
  * @param {string} dateStart - Fecha de inicio para filtrar los tickets ('01/03/2025 00:00:00').
  * @param {string} dateEnd - Fecha de fin para filtrar los tickets ('01/03/2025 00:00:00').
  * @returns {Promise<string[]>} - Devuelve una lista de tickets.
  */
-export async function runSearchTickets(code: string = 'CT-99999', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59'): Promise<string[]> {
+export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59'): Promise<string[]> {
     try {
-        console.log(`🤖 Buscando tickets asignados al ${code}`); 
+        console.log(`🤖 Buscando tickets asignados al ${Etapa}`); 
         
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
@@ -25,14 +25,7 @@ export async function runSearchTickets(code: string = 'CT-99999', dateStart: str
         await page.getByPlaceholder('Búsqueda...').click();
 
 
-         // Filtros por Contrato
-         await page.getByRole('button', { name: ' Filtros' }).click();
-         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
-         await page.getByRole('combobox').first().selectOption('contract_id');
-         await page.getByRole('textbox').fill(code);
-         await page.getByRole('button', { name: 'Aplicar' }).click();
-         await page.getByRole('button', { name: ' Filtros' }).click();
-
+         
         // Filtros por Equipo
         await page.getByRole('button', { name: ' Filtros' }).click();
         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
@@ -41,6 +34,15 @@ export async function runSearchTickets(code: string = 'CT-99999', dateStart: str
         await page.getByRole('button', { name: 'Aplicar' }).click();
         await page.getByRole('button', { name: ' Filtros' }).click();
         
+        // Filtros por Etapa
+        await page.getByRole('button', { name: ' Filtros' }).click();
+        await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
+        await page.getByRole('combobox').first().selectOption('stage_id');
+        await page.getByRole('textbox').fill(Etapa);
+        await page.getByRole('button', { name: 'Aplicar' }).click();
+        await page.getByRole('button', { name: ' Filtros' }).click();
+
+
         // Filtros por Rango de Fechas
         await page.getByRole('button', { name: ' Filtros' }).click();
         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
@@ -53,14 +55,14 @@ export async function runSearchTickets(code: string = 'CT-99999', dateStart: str
         // Esperar un buen tiempo para que se carguen los datos
         await page.waitForTimeout(10000); // Espera 10 segundos
 
-        // Extraer los datos de la tabla y descartar filas y campos vacíos
+
+
+        // Extraer los datos de la tabla
         const tickets = await page.$$eval('table tbody tr', rows => {
             return rows.map(row => {
-            const columns = Array.from(row.querySelectorAll('td'))
-                .map(td => td.innerText.trim())
-                .filter(text => text !== ''); // Filtrar campos vacíos
+            const columns = Array.from(row.querySelectorAll('td')).map(td => td.innerText.trim());
             return columns;
-            }).filter(columns => columns.length > 0); // Filtrar filas vacías
+            }).filter(columns => columns.some(column => column !== '')); // Filtrar filas vacías
         });
 
         console.log(tickets); // Muestra los datos en consola
@@ -82,5 +84,5 @@ export async function runSearchTickets(code: string = 'CT-99999', dateStart: str
 }
 
 /**
-runClientExportAutomation('CT-99999', '01/03/2025 00:00:00', '10/03/2025 23:59:59'); // Ejecutar la automatización
+runClientExportAutomation('Nuevo', '01/03/2025 00:00:00', '10/03/2025 23:59:59'); // Ejecutar la automatización
 */

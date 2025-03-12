@@ -10,13 +10,13 @@ import { downloadFile } from './utils/handler-files';
  * @param {string} fechaCorte - Fecha de corte para filtrar los clientes.
  * @returns {Promise<string>} - Devuelve la ruta del archivo exportado.
  */
-export async function runClientExportAutomation(status = 'Cortado', exportTemplate = 'RPA_Clientes_Cortados', fileName = 'clientes_cortados', fechaCorte = '25/02/2025') {
+export async function runCutUsersExport(status = 'Cortado', exportTemplate = 'RPA_Clientes_Cortados', fileName = 'clientes_cortados', fechaCorte = '25/02/2025') {
     try {
         console.log(`🤖 Iniciando proceso de revisión de clientes con estado: ${status}...`);
         
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            false, 
+            true, 
             'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
         );
 
