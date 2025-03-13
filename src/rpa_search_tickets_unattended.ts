@@ -16,7 +16,7 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            true, 
+            false, 
             'https://erp.nettplus.net/web#menu_id=444&cids=1&action=671&model=helpdesk.ticket&view_type=list');
         
             
@@ -53,7 +53,24 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         await page.getByRole('button', { name: 'Aplicar' }).click();
         await page.getByRole('button', { name: ' Filtros' }).click();
         // Esperar un buen tiempo para que se carguen los datos
-        await page.waitForTimeout(10000); // Espera 10 segundos
+        // Aquí en lugar de un wait fijo, esperamos las filas o el mensaje de "No datos".
+        try {
+            // Esperamos a que aparezcan filas en la tabla (máx. 10 seg).
+            await page.waitForSelector('table.o_list_view tbody tr', { timeout: 10000 });
+        } catch (error) {
+            // Si no aparece la tabla, comprobamos si está la pantalla de "sin información"
+            const noDataLocator = page.locator('text=Crear nuevos documento'); 
+            // ↑ Ajusta este selector al mensaje que aparece cuando no hay datos.
+            
+            if (await noDataLocator.isVisible()) {
+            console.log('No se encontró información en la tabla.');
+            await browser.close();
+            return [];
+            } else {
+            // En caso de que no sea un tema de "sin información", arrojamos el error.
+            throw new Error('Error esperando los datos de la tabla: ' + error);
+            }
+        }
 
 
 
@@ -83,6 +100,6 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
     }
 }
 
-/**
-runClientExportAutomation('Nuevo', '01/03/2025 00:00:00', '10/03/2025 23:59:59'); // Ejecutar la automatización
-*/
+
+// Ejecutar la automatización
+runSearchTickets('Nuevo', '06/03/2025 00:00:00', '13/03/2025 23:59:59');
