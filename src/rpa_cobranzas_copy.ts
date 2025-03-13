@@ -2,12 +2,11 @@ import { runAutomation } from './rpa_create_ticket';
 import { runCutUsersExport } from './rpa_cut_users_by_date';
 import { runSearchTickets } from './rpa_search_tickets_by_date';
 import { ClientOffData } from './core/interfaces/interface-client';
-import { saveGeneratedTickets } from '../src/utils/handler-bdTemporal';
-import { reporteTicketsCobranzas } from './utils/handler-files';
-import { enviarCorreo }  from './utils/handler-mail';
+import { loadGeneratedTickets, saveGeneratedTickets } from './utils/handler-bdTemporal';
 import fs from 'fs';
 import csvParser from 'csv-parser';
 import PDFDocument from 'pdfkit';
+import { save } from 'pdfkit';
 
 /**
  * Función para obtener una fecha en formato "YYYY-MM-DD" restando días o meses.
@@ -43,12 +42,11 @@ const procesarClientesCortados = async (dias: number, unidad: "days" | "months",
  * Función para obtener la lista de clientes cortados y generar tickets automáticamente.
  */
 async function generateTicketsForCortados() {
+    const errores: { Cliente: string, Codigo: string, Descripcion: string }[] = [];  // Para almacenar clientes con errores
 
     try {
         console.log('🔍 Obteniendo lista de clientes cortados...');
-        
 
-        
         // Obtener listas de clientes en diferentes intervalos
         const [clientsData5, clientsData20, clientsDataMes] = await Promise.all([
             procesarClientesCortados(5, "days", "5_dias"),
@@ -87,104 +85,6 @@ async function generateTicketsForCortados() {
         // Ejecutar robots de creación de tickets 
         console.log('🤖 Iniciando creación de tickets...')
         
-        
-        // Reiniciar clientsData y agregar datos de prueba
-        
-        let tickets: { Código: string, Descripcion: string, Cantidad: number, Detalles: any[] }[] = [];
-
-        for (const client of clientsData) {  // Cambiado de "for...in" a "for...of"
-            let fechaInicio: string;
-            const fechaFin = new Date().toISOString().split('T')[0]; // Fecha actual
-
-            switch (client.descripcion) {
-                case "5 días":
-                    fechaInicio = obtenerFechaModificada(5, "days");
-                    break;
-                case "20 días":
-                    fechaInicio = obtenerFechaModificada(20, "days");
-                    break;
-                case "1 mes":
-                    fechaInicio = obtenerFechaModificada(1, "months");
-                    break;
-                default:
-                    fechaInicio = obtenerFechaModificada(1, "months");
-                    break;
-            }
-
-            console.log(`🎟 Generando ticket para: ${client.Código} desde ${fechaInicio} hasta ${fechaFin} (${client.descripcion})`);
-
-            try {
-                const result = await runSearchTickets(client.Código, fechaInicio, (fechaFin+' 23:59:59'));
-
-                if (!Array.isArray(result)) {
-                    console.warn(`⚠️ Resultado inválido para ${client.Código}`);
-                    continue;
-                }
-
-                // Filtrar registros válidos
-                const registrosValidos = result.filter(ticket => 
-                    Array.isArray(ticket) && ticket.length > 0 && ticket.some((field: string) => field.trim() !== '')
-                );
-                console.log(`✅ ${registrosValidos.length} tickets válidos encontrados para ${client.Código}`);
-
-                if (registrosValidos.length > 0) {
-                    console.log('📋 Detalles de los tickets:');
-                    tickets.push({
-                        Código: client.Código,
-                        Descripcion: client.descripcion,
-                        Cantidad: registrosValidos.length,
-                        Detalles: registrosValidos.map(ticket => ({
-                            Código: ticket[1] || "N/A",  // Código del ticket
-                            FechaInicio: ticket[5] || "N/A",  // Fecha de inicio
-                            Estado: ticket[8] || "N/A"   // Estado del ticket
-                        }))
-                    });
-                }
-            } catch (error) {
-                console.error(`❌ Error al generar ticket para ${client.Código}:`, error);
-            }
-        }
-
-        // 🛑 Eliminar de clientsData aquellos clientes que no generaron tickets
-        clientsData = clientsData.filter(client => 
-            !tickets.some(ticket => ticket.Código === client.Código)
-        );
-
-        // 📋 Verificar si se generaron tickets antes de imprimir
-        if (tickets.length > 0) {
-            console.log('📋 Lista de tickets generados:');
-            console.table(tickets.map(ticket => ({
-                Código: ticket.Código,
-                Descripcion: ticket.Descripcion,
-                Cantidad: ticket.Cantidad,
-                Resultado: ticket.Detalles.map(d => `{${d.Código}, ${d.FechaInicio}, ${d.Estado}}`).join(' | ') // Formato esperado
-            })));
-        } else {
-            console.log("⚠️ No se generaron tickets válidos.");
-        }
-
-
-        console.log("Clientes para generar tickets");
-        console.table(clientsData);
-
-        console.log("Clientes con tickets generados");
-        console.table(tickets);
-
-        const formattedTickets = tickets.map(ticket => ({
-            Código: ticket.Código,
-            Descripcion: ticket.Descripcion,
-            Cantidad: ticket.Cantidad,
-            Resultado: ticket.Detalles.map(d => `{${d.Código}, ${d.FechaInicio}, ${d.Estado}}`).join(' | ')
-        }));
-
-        reporteTicketsCobranzas(formattedTickets, './src/Files/ticketsCobranzas.pdf'); // Generar reporte de tickets
-        enviarCorreo(
-            'djimenez@nettplus.net', 
-            './src/Files/ticketsCobranzas.pdf', 
-            'Clientes con tickets generados antes del flujo de cobranzas. /n Se recomienda revisar los tickets generados.', 
-            '#Clientes Con Tickets Generados'); // Enviar reporte por correo
-
-        
 
         // Generar tickets de manera secuencial
         for (const cliente of clientsData) {
@@ -196,6 +96,11 @@ async function generateTicketsForCortados() {
             } catch (error) {
                 console.error(`❌ Error al generar ticket para ${cliente.Cliente} (${cliente.descripcion}):`, error);
                 // Si hay un error, agregar el cliente a la lista de errores
+                errores.push({
+                    Cliente: cliente.Cliente,
+                    Codigo: cliente.Código,
+                    Descripcion: cliente.descripcion
+                });
             }
 
             console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
@@ -203,13 +108,44 @@ async function generateTicketsForCortados() {
         }
 
         
+
+        // Si hubo errores, generar el PDF
+        if (errores.length > 0) {
+            console.log('📑 Generando PDF con los errores...');
+            await generarPDFConErrores(errores); // Llamamos a la función para crear el PDF
+        }
+
         console.log('✅ Todos los tickets han sido generados correctamente.');
     } catch (error) {
         console.error('❌ Error en el proceso:', error);
     }
 }
 
+/**
+ * Función para generar un PDF con los clientes que tuvieron errores al generar su ticket.
+ */
+async function generarPDFConErrores(errores: { Cliente: string, Codigo: string, Descripcion: string }[]) {
+    const doc = new PDFDocument();
+    const filePath = './errores_ticket.pdf';
 
+    // Establecer las opciones para el archivo PDF
+    doc.pipe(fs.createWriteStream(filePath));
+    doc.fontSize(16).text('Clientes con Errores en la Generación de Tickets', { align: 'center' });
+
+    // Agregar una tabla de errores
+    doc.fontSize(12).text('Clientes con errores:', { align: 'left' });
+    doc.moveDown(1);
+    doc.text('Nombre Cliente  |  Código Cliente  |  Descripción', { align: 'left' });
+
+    // Añadir los errores al PDF
+    errores.forEach((error) => {
+        doc.text(`${error.Cliente}  |  ${error.Codigo}  |  ${error.Descripcion}`, { align: 'left' });
+    });
+
+    // Finalizar el archivo PDF
+    doc.end();
+    console.log(`📂 PDF de errores generado en: ${filePath}`);
+}
 
 /**
  * Función para generar tickets a partir de una lista de clientes de forma secuencial.
@@ -299,19 +235,11 @@ async function readCSV(filePath: string): Promise<ClientOffData[]> {
             })
             .on('end', () => {
                 console.log(`✅ Archivo CSV (${filePath}) procesado correctamente.`);
-                fs.unlink(filePath, (err) => {
-                    if (err) {
-                        console.error(`❌ Error al eliminar el archivo ${filePath}:`, err);
-                    } else {
-                        console.log(`🗑️ Archivo ${filePath} eliminado correctamente.`);
-                    }
-                });
                 resolve(results);
             })
             .on('error', (error) => reject(error));
     });
 }
-
 
 // 🔥 Ejecutar la automatización
 generateTicketsForCortados().catch(console.error);

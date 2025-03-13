@@ -8,9 +8,9 @@ import { List } from '@slack/web-api/dist/types/response/ChatPostMessageResponse
  * @param {string} code - Codigo del cliente.
  * @param {string} dateStart - Fecha de inicio para filtrar los tickets ('01/03/2025 00:00:00').
  * @param {string} dateEnd - Fecha de fin para filtrar los tickets ('01/03/2025 00:00:00').
- * @returns {Promise<string[]>} - Devuelve una lista de tickets.
+ * @returns {Promise<string[][]>} - Devuelve una lista de tickets.
  */
-export async function runSearchTickets(code: string = 'CT-99999', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59'): Promise<string[]> {
+export async function runSearchTickets(code: string = 'CT-99999', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59'): Promise<string[][]> {
     try {
         console.log(`🤖 Buscando tickets asignados al ${code}`); 
         
@@ -69,7 +69,7 @@ export async function runSearchTickets(code: string = 'CT-99999', dateStart: str
         // Cierre del navegador
         await browser.close();
         console.log('✅ Automatización completada con éxito.');
-        return tickets.flat();
+        return tickets;
 
     } catch (error) {
         if (error instanceof Error) {

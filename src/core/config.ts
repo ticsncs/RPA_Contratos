@@ -10,7 +10,14 @@ export const config = {
     slackToken: process.env.SLACK_TOKEN || '',
     slackChannelId: process.env.SLACK_CHANNEL_ID || '',
     user: process.env.USER || '',
-    pass: process.env.PASS || ''
+    pass: process.env.PASS || '',
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: process.env.SMTP_PORT || 587,
+    smtpSecure: process.env.SMTP_SECURE || false,
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
+    smtpRejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED || false,
+    
 };
 
 

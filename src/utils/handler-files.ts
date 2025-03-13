@@ -170,3 +170,110 @@ async function generatePDFReport(
         resolve(null);
     }
 }
+
+
+export function reporteTicketsCobranzas(
+    tickets: { Código: string; Descripcion: string; Cantidad: number; Resultado: string }[],
+    outputFile: string
+) {
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    const stream = fs.createWriteStream(outputFile);
+    doc.pipe(stream);
+
+    let startY = 50; // Posición inicial de la tabla
+    doc.fontSize(9); // Fuente más pequeña para mejor ajuste
+
+    // **🔹 Función para dividir los resultados en grupos de dos**
+    function formatearResultados(resultado: string): string {
+        const items = resultado.split('|').map(item => item.trim()); // Dividir en elementos individuales
+        let formattedResult = "";
+        for (let i = 0; i < items.length; i += 2) {
+            if (i + 1 < items.length) {
+                formattedResult += `${items[i]} | ${items[i + 1]}\n`;
+            } else {
+                formattedResult += `${items[i]}\n`;
+            }
+        }
+        return formattedResult.trim();
+    }
+
+    // **🔹 Función para Dibujar el Encabezado**
+    function drawHeader() {
+        doc.fillColor('#003366').font('Helvetica-Bold').fontSize(14).text('Reporte de Tickets de Cobranzas', { align: 'center' });
+        doc.moveDown(0.3);
+
+        const fechaActual = new Date().toLocaleString();
+        doc.fillColor('black').font('Helvetica').fontSize(10).text(`Generado el: ${fechaActual}`, { align: 'right' });
+        doc.moveDown(0.8);
+
+        // **🔹 Dibujar Encabezado de la Tabla**
+        const columnWidths = [60, 80, 50, 290]; // Ampliamos la columna de "Resultado"
+        const startX = 50;
+        startY = doc.y;
+
+        doc.rect(startX, startY, columnWidths.reduce((a, b) => a + b, 0), 25).fill('#003366');
+        doc.fillColor('#FFFFFF').font('Helvetica-Bold').fontSize(10);
+
+        const headers = ['Código', 'Descripción', 'Cantidad', 'Resultado'];
+        let x = startX;
+
+        headers.forEach((header, i) => {
+            doc.text(header, x + 5, startY + 8, { width: columnWidths[i], align: 'left' });
+            x += columnWidths[i];
+        });
+
+        doc.fillColor('black');
+        startY += 25;
+    }
+
+    // **🔹 DIBUJAR EL ENCABEZADO INICIAL**
+    drawHeader();
+
+    // **🔹 Dibujar Filas de Datos**
+    tickets.forEach((ticket, index) => {
+        const isEven = index % 2 === 0;
+        const columnWidths = [60, 80, 50, 290]; // Ajustamos la columna de "Resultado"
+        const startX = 50;
+
+        // **📌 Formatear el resultado para dividir en bloques de 2 elementos por línea**
+        const resultadoFormateado = formatearResultados(ticket.Resultado);
+
+        // **📌 Calcular la altura dinámica de la celda según "Resultado"**
+        const lineHeight = 12;
+        const maxWidth = columnWidths[3] - 10;
+        const resultLines = doc.heightOfString(resultadoFormateado, { width: maxWidth }) / lineHeight;
+        const rowHeight = Math.max(20, resultLines * lineHeight + 10); // Ajuste dinámico
+
+        // **📌 Si la fila no cabe, agregar una nueva página antes de imprimir**
+        if (startY + rowHeight > 750) {
+            doc.addPage();
+            drawHeader(); // Redibujar encabezado en nueva página
+        }
+
+        // **📌 Dibujar fondo alternado para filas**
+        doc.rect(startX, startY, columnWidths.reduce((a, b) => a + b, 0), rowHeight).fill(isEven ? '#f0f0f0' : '#ffffff');
+
+        doc.fillColor('black');
+        let x = startX;
+
+        const valores = [
+            ticket.Código,
+            ticket.Descripcion,
+            ticket.Cantidad.toString(),
+            resultadoFormateado // Usar el formato mejorado
+        ];
+
+        valores.forEach((valor, i) => {
+            doc.text(valor, x + 5, startY + 6, {
+                width: columnWidths[i],
+                align: 'left'
+            });
+            x += columnWidths[i];
+        });
+
+        startY += rowHeight; // Ajustamos la posición para la siguiente fila
+    });
+
+    doc.end();
+    console.log(`✅ PDF generado con éxito: ${outputFile}`);
+}
