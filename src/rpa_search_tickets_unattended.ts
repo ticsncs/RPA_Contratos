@@ -56,10 +56,14 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         // Aquí en lugar de un wait fijo, esperamos las filas o el mensaje de "No datos".
         try {
             // Esperamos a que aparezcan filas en la tabla (máx. 10 seg).
-            await page.waitForSelector('table.o_list_view tbody tr', { timeout: 10000 });
+            await page.waitForSelector('table.o_list_table tbody tr', { timeout: 10000 });
+            await page.waitForTimeout(1500); // Asegura un tiempo mínimo de recarga
+            const rowsCount = await page.$$eval('table.o_list_table tbody tr', rows => rows.length);
+            console.log('Filas tras filtrar equipo:', rowsCount);
+
         } catch (error) {
             // Si no aparece la tabla, comprobamos si está la pantalla de "sin información"
-            const noDataLocator = page.locator('text=Crear nuevos documento'); 
+            const noDataLocator = page.locator('text=No se encontraron resultados'); 
             // ↑ Ajusta este selector al mensaje que aparece cuando no hay datos.
             
             if (await noDataLocator.isVisible()) {
@@ -72,7 +76,7 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
             }
         }
 
-
+        await page.waitForLoadState('networkidle');
 
         // Extraer los datos de la tabla
         const tickets = await page.$$eval('table tbody tr', rows => {
