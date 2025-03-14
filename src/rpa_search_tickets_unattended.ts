@@ -1,7 +1,7 @@
 import { interactWithElement } from './utils/handler-elements';
 import { login } from './core/login';
 import { downloadFile } from './utils/handler-files';
-import { List } from '@slack/web-api/dist/types/response/ChatPostMessageResponse';
+import { enviarCorreo } from './utils/handler-mail';
 
 /**
  * Función para revisar clientes con estado cortado y exportar la lista.
@@ -10,7 +10,7 @@ import { List } from '@slack/web-api/dist/types/response/ChatPostMessageResponse
  * @param {string} dateEnd - Fecha de fin para filtrar los tickets ('01/03/2025 00:00:00').
  * @returns {Promise<string[]>} - Devuelve una lista de tickets.
  */
-export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59'): Promise<string[]> {
+export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: string = '01/03/2025 00:00:00', dateEnd: string = '10/03/2025 23:59:59', exportTemplate:string='', fileName:string='',ext:string ="CSV"): Promise<string[]> {
     try {
         console.log(`🤖 Buscando tickets asignados al ${Etapa}`); 
         
@@ -54,45 +54,48 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         await page.getByRole('button', { name: ' Filtros' }).click();
         // Esperar un buen tiempo para que se carguen los datos
         // Aquí en lugar de un wait fijo, esperamos las filas o el mensaje de "No datos".
-        try {
-            // Esperamos a que aparezcan filas en la tabla (máx. 10 seg).
-            await page.waitForSelector('table.o_list_table tbody tr', { timeout: 10000 });
-            await page.waitForTimeout(1500); // Asegura un tiempo mínimo de recarga
-            const rowsCount = await page.$$eval('table.o_list_table tbody tr', rows => rows.length);
-            console.log('Filas tras filtrar equipo:', rowsCount);
+        
+        // Esperar 10 segundos
+        await page.waitForTimeout(10000);
 
-        } catch (error) {
-            // Si no aparece la tabla, comprobamos si está la pantalla de "sin información"
-            const noDataLocator = page.locator('text=No se encontraron resultados'); 
-            // ↑ Ajusta este selector al mensaje que aparece cuando no hay datos.
-            
-            if (await noDataLocator.isVisible()) {
-            console.log('No se encontró información en la tabla.');
-            await browser.close();
-            return [];
-            } else {
-            // En caso de que no sea un tema de "sin información", arrojamos el error.
-            throw new Error('Error esperando los datos de la tabla: ' + error);
-            }
-        }
+        // Seleccionar todos los clientes en ese estado
+        await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 2000 });
+        await interactWithElement(page, 'th.o_list_record_selector', 'click');
+        await interactWithElement(page, 'a.o_list_select_domain', 'wait', { waitTime: 2000 });
+        await interactWithElement(page, 'a.o_list_select_domain', 'click');
+        
 
-        await page.waitForLoadState('networkidle');
+        // Click en Acción → Exportar
+        await interactWithElement(page, 'span.o_dropdown_title:has-text("Acción")', 'click');
+        await interactWithElement(page, 'a.dropdown-item:has-text("Exportar")', 'click');
 
-        // Extraer los datos de la tabla
-        const tickets = await page.$$eval('table tbody tr', rows => {
-            return rows.map(row => {
-            const columns = Array.from(row.querySelectorAll('td')).map(td => td.innerText.trim());
-            return columns;
-            }).filter(columns => columns.some(column => column !== '')); // Filtrar filas vacías
-        });
+        // Seleccionar formato CSV
+        await interactWithElement(page, `label[for="o_radio${ext.toUpperCase()}"]`, 'wait');
+        await interactWithElement(page, `label[for="o_radio${ext.toUpperCase()}"]`, 'click');
+        await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
 
-        console.log(tickets); // Muestra los datos en consola
+        // Seleccionar la plantilla de exportación
+        await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: exportTemplate });
+        await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
+
+        // Descargar el archivo
+        const pathFile = await downloadFile(page, '.modal-footer > .btn-primary', fileName, ext.toLowerCase()) || '';
+
+        enviarCorreo(
+            'baherreram@gmail.com', // Destinatario
+            ['byron.herrera@unl.edu.ec'], // Correos con copia cc
+            ['necusoftnettplus@gmail.com'], // Correos con copia oculta cco
+            pathFile, // Archivo adjunto
+            'Se adjunta el reporte de tickets abandonados por mas de 10 días', // Mensaje
+            'Reporte de tickets abandonados' // Asunto
+        );
+        
 
 
         // Cierre del navegador
         await browser.close();
         console.log('✅ Automatización completada con éxito.');
-        return tickets.flat();
+        return [];
 
     } catch (error) {
         if (error instanceof Error) {
@@ -106,4 +109,4 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
 
 
 // Ejecutar la automatización
-runSearchTickets('Nuevo', '06/03/2025 00:00:00', '13/03/2025 23:59:59');
+runSearchTickets('Nuevo', '06/03/2025 00:00:00', '13/03/2025 23:59:59', 'RPA_Inf_Cobranzas2', 'Reporte_Tickets_abandonados', 'XLSX');

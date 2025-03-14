@@ -16,18 +16,19 @@ const transporter = nodemailer.createTransport({
 });
 
 // Función para enviar el correo
-export async function enviarCorreo(destinatario: string, archivoAdjunto: string, mensaje: string = '', asunto:string = '') {
+export async function enviarCorreo(destinatario: string, ccusers: string[], ccousers: string[], archivoAdjunto: string, mensaje: string = '', asunto:string = '') {
     const nombreArchivo = path.basename(archivoAdjunto);
     let mailOptions = {
         from: '"SOPORTE TICS" <ticsncs@nettplus.net>',
         to: destinatario,
         subject: asunto, 
-        cc: 'bherrera@nettplus.net',
-        html:`
+        cc: ccusers, // Añadir otro correo en CC
+        bcc: ccousers, // Añadir otro correo en CCO
+        html: `
         <p>Saludos cordiales,</p>
         <p>${mensaje}</p>
         <img src="cid:firmaLogo" width="350" height="150"/>
-        ` ,
+        `,
         attachments: [
             {
                 filename: nombreArchivo,
@@ -53,5 +54,12 @@ export async function enviarCorreo(destinatario: string, archivoAdjunto: string,
 
 /*
 // Enviar el PDF por correo
-enviarCorreo('bherrera@nettplus.net', './src/utils/tickets.pdf', 'Adjunto los tickets generados.', 'Tickets Generados');
+enviarCorreo(
+    'bherrera@nettplus.net', // Destinatario
+    ['byron.herrera@unl.edu.ec'], // Correos con copia cc 
+    ['byron.herrera@unl.edu.ec'], // Correos con copia oculta cco
+    './src/Files/ticketsCobranzas.pdf', // Archivo adjunto
+    'Adjunto el reporte de tickets', // Mensaje
+    'Reporte de tickets' // Asunto
+);
 */

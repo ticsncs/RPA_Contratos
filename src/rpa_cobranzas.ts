@@ -179,7 +179,9 @@ async function generateTicketsForCortados() {
 
         reporteTicketsCobranzas(formattedTickets, './src/Files/ticketsCobranzas.pdf'); // Generar reporte de tickets
         enviarCorreo(
-            'djimenez@nettplus.net', 
+            'djimenez@nettplus.net',
+            [], 
+            ['bherrera@nettplus.net', 'kyaruqui@nettplus.net'],
             './src/Files/ticketsCobranzas.pdf', 
             'Clientes con tickets generados antes del flujo de cobranzas. /n Se recomienda revisar los tickets generados.', 
             '#Clientes Con Tickets Generados'); // Enviar reporte por correo

@@ -249,6 +249,8 @@ function generateReportAndSendEmail(tickets: FormattedTicket[]): void {
   reporteTicketsCobranzas(tickets, REPORT_FILE_PATH);
   enviarCorreo(
     EMAIL_RECIPIENT, 
+    [], 
+    [],
     REPORT_FILE_PATH, 
     'Clientes con tickets generados antes del flujo de cobranzas. \n Se recomienda revisar los tickets generados.', 
     '#Clientes Con Tickets Generados'
