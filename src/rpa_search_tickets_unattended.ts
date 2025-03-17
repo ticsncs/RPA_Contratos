@@ -2,6 +2,7 @@ import { interactWithElement } from './utils/handler-elements';
 import { login } from './core/login';
 import { downloadFile } from './utils/handler-files';
 import { enviarCorreo } from './utils/handler-mail';
+const fs = require('fs');
 
 /**
  * Función para revisar clientes con estado cortado y exportar la lista.
@@ -82,15 +83,24 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         const pathFile = await downloadFile(page, '.modal-footer > .btn-primary', fileName, ext.toLowerCase()) || '';
 
         enviarCorreo(
-            'baherreram@gmail.com', // Destinatario
-            ['byron.herrera@unl.edu.ec'], // Correos con copia cc
-            ['necusoftnettplus@gmail.com'], // Correos con copia oculta cco
+            'djimenez@nettplus.net', // Destinatario
+            [], // Correos con copia cc
+            ['bherrera@nettplus.net', 'kyaruqui@nettplus.net'], // Correos con copia oculta cco
             pathFile, // Archivo adjunto
             'Se adjunta el reporte de tickets abandonados por mas de 10 días', // Mensaje
             'Reporte de tickets abandonados' // Asunto
         );
         
-
+        // Borrar el archivo después de enviar el mensaje
+        if (pathFile) {
+            fs.unlink(pathFile, (err: NodeJS.ErrnoException | null) => {
+            if (err) {
+                console.error(`❌ Error al borrar el archivo: ${err.message}`);
+            } else {
+                console.log('✅ Archivo borrado con éxito.');
+            }
+            });
+        }
 
         // Cierre del navegador
         await browser.close();
@@ -109,4 +119,8 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
 
 
 // Ejecutar la automatización
-runSearchTickets('Nuevo', '06/03/2025 00:00:00', '13/03/2025 23:59:59', 'RPA_Inf_Cobranzas2', 'Reporte_Tickets_abandonados', 'XLSX');
+const currentDate = new Date();
+const dateEnd = new Date(currentDate.setDate(currentDate.getDate() - 10)).toLocaleDateString('en-GB') + ' 23:59:59';
+const dateStart = new Date(currentDate.setMonth(currentDate.getMonth() - 3)).toLocaleDateString('en-GB') + ' 00:00:00';
+
+runSearchTickets('Nuevo', dateStart, dateEnd, 'RPA_Inf_Cobranzas2', 'Reporte_Tickets_abandonados', 'XLSX');
