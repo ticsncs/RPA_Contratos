@@ -17,7 +17,7 @@ export async function runAutomation(searchText: string, ticketData: TicketData,s
     
     // Iniciar sesión en el sistema
     const { browser, page } = await login(
-      false,
+      true,
       'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
     );
 

@@ -17,7 +17,7 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            false, 
+            true, 
             'https://erp.nettplus.net/web#menu_id=444&cids=1&action=671&model=helpdesk.ticket&view_type=list');
         
             
