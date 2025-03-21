@@ -9,7 +9,10 @@ import { downloadFile, generateReport } from './utils/handler-files';
     try {
         console.log('🤖 Iniciando proceso de validación de campos...');
         // Iniciar sesión en el sistema
-        const { browser, page } = await login(true);
+        const { browser, page } = await login(
+            true,
+            'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
+        );
 
 
         // Esperar a que cargue la página principal
@@ -68,3 +71,15 @@ import { downloadFile, generateReport } from './utils/handler-files';
         console.log(`❌ Error en la automatización: ${(error as any).message}`);
     }
 })();
+
+
+
+/**
+ * URLS por defecto de los módulos de Odoo
+ * 
+ * Contratos: https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list
+ * Tickets: https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=helpdesk.ticket&view_type=list
+ * Nominas: https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=hr.payslip&view_type=list
+ * Inventario: https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=stock.inventory&view_type=list
+ * Odoo Studio: https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=ir.model&view_type=list
+ */

@@ -8,7 +8,10 @@ import { downloadFile } from './utils/handler-files';
 
 
         // Iniciar sesión en el sistema
-        const { browser, page } = await login(true);
+        const { browser, page } = await login(
+            true,
+            'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
+        );
         
         // Esperar a que cargue la página principal
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
