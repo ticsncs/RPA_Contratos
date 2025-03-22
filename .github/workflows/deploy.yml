@@ -37,10 +37,14 @@ jobs:
           script: |
             docker pull alexhm95/rpa_odoo:latest
 
-            # Si existe el contenedor cache_holder, eliminarlo para actualizarlo
-            if docker ps -a --format '{{.Names}}' | grep -q '^rpa_odoo_cache_holder$'; then
+            echo "Verificando si existe rpa_odoo_cache_holder..."
+            EXISTS=$(docker ps -a --filter "name=rpa_odoo_cache_holder" --format "{{.Names}}")
+            
+            if [ "$EXISTS" == "rpa_odoo_cache_holder" ]; then
+              echo "Contenedor existente, eliminando..."
               docker rm rpa_odoo_cache_holder
             fi
+            
+            echo "Creando contenedor rpa_odoo_cache_holder..."
+            docker create --name rpa_odoo_cache_holder alexhm95/rpa_odoo:latest
 
-            # Crear de nuevo el contenedor cache_holder con la imagen actualizada
-            docker 
