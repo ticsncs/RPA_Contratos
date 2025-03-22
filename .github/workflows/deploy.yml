@@ -16,7 +16,6 @@ jobs:
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        #run: echo "Byronde1995." | docker login -u "alexhm95" --password-stdin
 
       - name: Build and tag Docker image
         run: docker build -f Dockerfile -t alexhm95/rpa_odoo:latest .
@@ -32,11 +31,8 @@ jobs:
       - name: SSH into Server and Deploy
         uses: appleboy/ssh-action@master
         with:
-          #host: 190.96.96.20
           host: "${{ secrets.HOST_SERVER }}"
-          #username: proyectos
           username: "${{ secrets.USER_SERVER }}"
-          #password: proyectos25
           password: "${{ secrets.PASS_SERVER }}"
           script: |
             docker pull alexhm95/rpa_odoo:latest
