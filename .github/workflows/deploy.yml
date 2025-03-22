@@ -15,7 +15,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        run: echo "Byronde1995." | docker login -u "alexhm95" --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        #run: echo "Byronde1995." | docker login -u "alexhm95" --password-stdin
 
       - name: Build and tag Docker image
         run: docker build -f Dockerfile -t alexhm95/rpa_odoo:latest .
@@ -31,11 +32,19 @@ jobs:
       - name: SSH into Server and Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: 190.96.96.20
-          username: proyectos
-          password: proyectos25
+          #host: 190.96.96.20
+          host: "${{ secrets.HOST_SERVER }}"
+          #username: proyectos
+          username: "${{ secrets.USER_SERVER }}"
+          #password: proyectos25
+          password: "${{ secrets.PASS_SERVER }}"
           script: |
             docker pull alexhm95/rpa_odoo:latest
-            docker stop rpa_odoo_container || true
-            docker rm rpa_odoo_container || true
-            docker run -d --name rpa_odoo_container -v /home/proyectos/Robots/Files:/app/src/Files -v /home/proyectos/Robots/Session:/app/src/Session   alexhm95/rpa_odoo:latest
+
+            # Si existe el contenedor cache_holder, eliminarlo para actualizarlo
+            if docker ps -a --format '{{.Names}}' | grep -q '^rpa_odoo_cache_holder$'; then
+              docker rm rpa_odoo_cache_holder
+            fi
+
+            # Crear de nuevo el contenedor cache_holder con la imagen actualizada
+            docker 
