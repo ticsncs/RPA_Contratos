@@ -46,8 +46,10 @@ export async function enviarCorreo(destinatario: string, ccusers: string[], ccou
     try {
         let info = await transporter.sendMail(mailOptions);
         console.log('✅ Correo enviado:', info.response);
+        return true;
     } catch (error) {
         console.error('❌ Error al enviar el correo:', error);
+        return false;
     }
 }
 

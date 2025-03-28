@@ -82,7 +82,7 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
         // Descargar el archivo
         const pathFile = await downloadFile(page, '.modal-footer > .btn-primary', fileName, ext.toLowerCase()) || '';
 
-        enviarCorreo(
+        let informe = enviarCorreo(
             'djimenez@nettplus.net', // Destinatario
             [], // Correos con copia cc
             ['bherrera@nettplus.net', 'kyaruqui@nettplus.net'], // Correos con copia oculta cco
@@ -90,8 +90,8 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
             'Se adjunta el reporte de tickets abandonados por mas de 10 días', // Mensaje
             'Reporte de tickets abandonados' // Asunto
         );
-        
-        // Borrar el archivo después de enviar el mensaje
+        if (await informe) {
+            // Borrar el archivo después de enviar el mensaje
         if (pathFile) {
             fs.unlink(pathFile, (err: NodeJS.ErrnoException | null) => {
             if (err) {
@@ -101,6 +101,8 @@ export async function runSearchTickets(Etapa: string = 'Nuevo', dateStart: strin
             }
             });
         }
+        }
+        
 
         // Cierre del navegador
         await browser.close();
