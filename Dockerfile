@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copia solo los archivos necesarios para instalar dependencias primero
 COPY package*.json ./
-COPY .env ./
+#COPY .env ./
 COPY tsconfig.json .
 
 # Instala las dependencias del proyecto y Playwright browsers en un solo paso
