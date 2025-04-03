@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM mcr.microsoft.com/playwright:latest as builder
+FROM mcr.microsoft.com/playwright:latest-slim
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -8,7 +8,10 @@ WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 
 # Instala las dependencias del proyecto
-RUN npm install && npx playwright install --with-deps
+RUN npm ci && npx playwright install --with-deps
+
+# Instala las dependencias de Playwright y limpia la caché de npm
+RUN npm ci && npx playwright install --with-deps && npm cache clean --force
 
 # Copia todo el código fuente
 COPY src/ ./src/
