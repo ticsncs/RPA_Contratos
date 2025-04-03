@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM mcr.microsoft.com/playwright:latest-slim AS builder
+FROM mcr.microsoft.com/playwright/python:v1.36.0-slim AS builder
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
