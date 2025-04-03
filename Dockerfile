@@ -1,41 +1,34 @@
-# Stage 1: Build Stage
-FROM mcr.microsoft.com/playwright/python:v1.36.0-slim AS builder
+# Usa la imagen oficial de Playwright con Node.js
+FROM mcr.microsoft.com/playwright:v1.51.1-noble
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de configuración
-COPY package.json package-lock.json tsconfig.json ./
+# Copia solo los archivos necesarios para instalar dependencias primero
+COPY package*.json ./
+COPY .env ./
+COPY tsconfig.json .
 
-# Instala las dependencias del proyecto
-RUN npm ci && npx playwright install --with-deps
+# Instala las dependencias del proyecto y Playwright browsers en un solo paso
+RUN npm ci --quiet && \
+    npx playwright install chromium --with-deps && \
+    npm install -g ts-node && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/apt/* && \
+    rm -rf /tmp/*
 
-# Instala las dependencias de Playwright y limpia la caché de npm
-RUN npm ci && npx playwright install --with-deps && npm cache clean --force
-
-# Copia todo el código fuente
+# Copia el código fuente (se hace después para aprovechar el cache de Docker)
 COPY src/ ./src/
 
-# Stage 2: Runtime Stage
-FROM node:18-slim
+# Crea directorios necesarios y establece permisos
+RUN mkdir -p /app/src/Files /app/src/Session && \
+    chmod -R 777 /app/src/Files /app/src/Session
 
-# Establece el directorio de trabajo
-WORKDIR /app
+# Especifica el usuario no-root para seguridad
+USER playwright
 
-# Copia solo los archivos necesarios del stage anterior
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/tsconfig.json ./
+# Define volúmenes para persistencia de datos
+VOLUME ["/app/src/Files", "/app/src/Session"]
 
-# Instala ts-node globalmente
-RUN npm install -g ts-node
-
-# Crea directorios para los archivos generados
-RUN mkdir -p /app/src/Files /app/src/Session
-
-# Define volúmenes para los directorios donde se almacenarán los archivos
-VOLUME ./Files_rpa:/app/src/Files
-VOLUME ./Session_rpa:/app/src/Session
-
-# Comando de inicio (modifícalo según el bot que quieres ejecutar)
+# Comando de inicio (usa nodemon para desarrollo o ts-node para producción)
 CMD ["ts-node", "src/rpa_contratos_full.ts"]

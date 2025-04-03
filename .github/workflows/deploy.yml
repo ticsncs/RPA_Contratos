@@ -43,9 +43,9 @@ jobs:
             
             if [ "$EXISTS" == "rpa_odoo_cache_holder" ]; then
               echo "Contenedor existente, eliminando..."
-              docker rm rpa_odoo_cache_holder
+              docker rm rpa_odoo
             fi
             
             echo "Creando contenedor rpa_odoo..."
-            docker create --name rpa_odoo_cache_holder alexhm95/rpa_odoo:latest
+            docker create --name rpa_odoo alexhm95/rpa_odoo:latest
 
