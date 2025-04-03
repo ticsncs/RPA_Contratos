@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM mcr.microsoft.com/playwright:latest-slim
+FROM mcr.microsoft.com/playwright:latest-slim AS builder
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -26,7 +26,6 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./
-
 
 # Instala ts-node globalmente
 RUN npm install -g ts-node
