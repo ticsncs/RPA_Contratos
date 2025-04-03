@@ -21,8 +21,10 @@ RUN npm ci --quiet && \
 COPY src/ ./src/
 
 # Crea directorios necesarios y establece permisos
-RUN mkdir -p /app/src/Files /app/src/Session && \
-    chmod -R 777 /app/src/Files /app/src/Session
+# Crear los directorios con permisos adecuados
+RUN mkdir -p /app/src/Session /app/src/Files && \
+    chown -R pwuser:pwuser /app/src/Session /app/src/Files && \
+    chmod -R 777 /app/src/Session /app/src/Files
 
 # Especifica el usuario no-root para seguridad
 USER playwright
