@@ -38,14 +38,13 @@ jobs:
           script: |
             docker pull alexhm95/rpa_odoo:latest
 
-            echo "Verificando si existe rpa_odoo_cache_holder..."
+            echo "Verificando si existe rpa_odoo..."
             EXISTS=$(docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
             
-            if [ "$EXISTS" == "rpa_odoo_cache_holder" ]; then
+            if [ "$EXISTS" == "rpa_odoo" ]; then
               echo "Contenedor existente, eliminando..."
               docker rm rpa_odoo
             fi
             
-            echo "Creando contenedor rpa_odoo..."
-            docker create --name rpa_odoo alexhm95/rpa_odoo:latest
+        
 
