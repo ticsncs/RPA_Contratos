@@ -37,7 +37,8 @@ import { config } from './core/config';
         await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
         
         // Descarga del archivo CSV y obtiene la ruta del archivo descargado
-        const downloadedFilePath = await downloadFile(page, '.modal-footer > .btn-primary', 'clientes_nettplus', 'csv');
+        const downloadedFilePath = await downloadFile(page, '.modal-footer > button.btn-primary:has-text("Exportar")', 'clientes_nettplus', 'csv');
+
         console.log('🔄 Esperando a que se complete la descarga... ')
         console.log('🔄 Ruta del archivo: ',downloadedFilePath)
       
