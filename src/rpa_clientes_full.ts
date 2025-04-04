@@ -43,7 +43,7 @@ import { config } from './core/config';
         await browser.close();
 
         if (downloadedFilePath) {
-            console.log(`✅ Archivo de clientes descargado correctamente: ${downloadedFilePath}`);
+            console.log(`✅ Archivo descargado correctamente: ${downloadedFilePath}`);
             
             // Extraer el nombre de archivo del path completo
             const fileName = path.basename(downloadedFilePath);
