@@ -59,7 +59,7 @@ import { config } from './core/config';
                 console.error('❌ Error al llamar a la API:', apiError);
             }
         } else {
-            console.log('❌ No se pudo descargar el archivo.');
+            console.log('❌ No se logró descargar el archivo.');
         }
 
         console.log('🚀 Proceso finalizado con éxito.');
