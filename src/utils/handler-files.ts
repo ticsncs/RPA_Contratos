@@ -9,6 +9,10 @@ import { interactWithElement } from './handler-elements';
 import { Page } from 'playwright';
 import xlsx from 'xlsx';
 
+function wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function downloadFile(page: Page, buttonSelector: string, filePrefix: string = 'archivo', ext: string = 'xlsx') {
     let attempts = 0;
     let downloadedFilePath = '';
@@ -20,8 +24,11 @@ export async function downloadFile(page: Page, buttonSelector: string, filePrefi
     
     while (attempts < 2) {
         try {
+            wait(5000); // Esperar 2 segundos antes de iniciar la descarga
+            
             const [download] = await Promise.all([
-                page.waitForEvent('download', { timeout: 10000 }),
+                // Esperar a que se inicie la descarga
+                page.waitForEvent('download', { timeout: 60000 }),
                 interactWithElement(page, buttonSelector, 'click'),
             ]);
             
