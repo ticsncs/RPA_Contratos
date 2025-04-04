@@ -39,7 +39,7 @@ import { config } from './core/config';
         // Descarga del archivo CSV y obtiene la ruta del archivo descargado
         const downloadedFilePath = await downloadFile(page, '.modal-footer > button.btn-primary:has-text("Exportar")', 'clientes_nettplus', 'csv');
 
-        console.log('🔄 Esperando a que se complete la descarga... ')
+        console.log('🔄 Esperando a que seasa complete la descarga... ')
         console.log('🔄 Ruta del archivo: ',downloadedFilePath)
       
         // Cierre del navegador
