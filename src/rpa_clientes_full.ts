@@ -1,6 +1,6 @@
 import { login } from './core/login';
 import { interactWithElement } from './utils/handler-elements';
-import { downloadFile } from './utils/handler-files';
+import { downloadFile } from './utils/f_dowload';
 import path from 'path';
 import axios from 'axios';
 import { config } from './core/config';
@@ -11,7 +11,7 @@ import { config } from './core/config';
 
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            false,
+            true,
             'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
         );
         
@@ -37,10 +37,7 @@ import { config } from './core/config';
         await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
         
         // Descarga del archivo CSV y obtiene la ruta del archivo descargado
-        const downloadedFilePath = await downloadFile(page, '.modal-footer > button.btn-primary:has-text("Exportar")', 'clientes_nettplus', 'csv');
-
-        console.log('🔄 Esperando a que seasa complete la descarga... ')
-        console.log('🔄 Ruta del archivo: ',downloadedFilePath)
+        const downloadedFilePath = await downloadFile(page, '.modal-footer > .btn-primary', 'clientes_nettplus', 'csv');
       
         // Cierre del navegador
         await browser.close();
@@ -62,7 +59,7 @@ import { config } from './core/config';
                 console.error('❌ Error al llamar a la API:', apiError);
             }
         } else {
-            console.log('❌ No se logró descargar el archivo.');
+            console.log('❌ No se pudo descargar el archivo.');
         }
 
         console.log('🚀 Proceso finalizado con éxito.');
