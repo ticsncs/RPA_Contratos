@@ -38,8 +38,16 @@ import { downloadFile } from './utils/handler-files';
 
       
 
-        // Descarga del archivo CSV
-        await downloadFile(page, '.modal-footer > .btn-primary', 'contratos_tics_2025', 'csv');
+        // Intentar la descarga del archivo CSV
+        try {
+            await downloadFile(page, '.modal-footer > .btn-primary', 'contratos_tics_2025', 'csv');
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(`❌ Error durante la descarga: ${err.message}`);
+            } else {
+                console.error('❌ Error durante la descarga:', err);
+            }
+        }
       
         // Cierre del navegador
         await browser.close();

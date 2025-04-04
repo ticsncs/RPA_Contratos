@@ -24,11 +24,11 @@ export async function downloadFile(page: Page, buttonSelector: string, filePrefi
     
     while (attempts < 2) {
         try {
-            wait(5000); // Esperar 2 segundos antes de iniciar la descarga
-            
+            await wait(5000); // Esperar 2 segundos antes de iniciar la descarga
+
             const [download] = await Promise.all([
                 // Esperar a que se inicie la descarga
-                page.waitForEvent('download', { timeout: 60000 }),
+                page.waitForEvent('download', { timeout: 80000 }),
                 interactWithElement(page, buttonSelector, 'click'),
             ]);
             
