@@ -21,7 +21,7 @@ export async function downloadFile(page: Page, buttonSelector: string, filePrefi
     while (attempts < 2) {
         try {
             const [download] = await Promise.all([
-                page.waitForEvent('download', { timeout: 60000 }),
+                page.waitForEvent('download', { timeout: 10000 }),
                 interactWithElement(page, buttonSelector, 'click'),
             ]);
             
