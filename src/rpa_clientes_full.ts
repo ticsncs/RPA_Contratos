@@ -23,8 +23,8 @@ import { config } from './core/config';
         await interactWithElement(page, 'div.o-dropdown-menu', 'wait', { waitTime: 1000 });
 
         await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Activos")', 'click'); 
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Cortados")', 'click'); 
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Lista de Retiro")', 'click'); 
+        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Cortados")', 'click'); 
+        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Lista de Retiro")', 'click'); 
         await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Proceso")', 'click');
 
         // Pausa para depuración
