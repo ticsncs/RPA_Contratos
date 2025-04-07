@@ -65,10 +65,10 @@ import { config } from './core/config';
 
             // Llamar a la API con el nombre del archivo
             try {
-                const apiUrl = `http://190.96.96.20:3050/api/csv/import/${fileName}`;
+                const apiUrl = `http://190.96.96.20:3050/api/csv/process-optimized/${fileName}`;
                 console.log(`🔄 Enviando archivo a API: ${apiUrl}`);
 
-                const response = await axios.post(apiUrl);
+                const response = await axios.get(apiUrl);
                 console.log('✅ Respuesta de la API:', response.data);
             } catch (apiError) {
                 console.error('❌ Error al llamar a la API:', apiError);
