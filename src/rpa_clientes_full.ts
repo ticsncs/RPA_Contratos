@@ -70,6 +70,12 @@ import { config } from './core/config';
 
                 const response = await axios.get(apiUrl);
                 console.log('✅ Respuesta de la API:', response.data);
+
+                //Borrar el archivo descargado
+                const fs = require('fs');
+                fs.unlinkSync(downloadedFilePath);
+                console.log(`✅ Archivo eliminado: ${downloadedFilePath}`);
+
             } catch (apiError) {
                 console.error('❌ Error al llamar a la API:', apiError);
             }
