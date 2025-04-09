@@ -48,7 +48,7 @@ import { config } from './core/config';
 
         // Esperar a que cargue la lista de exportación y seleccionar la lista de campos
         await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
-        await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: 'PLANTILLA_API_CLIENTS' });
+        await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: 'PLANTILLA_API_CLIENTS_v2' });
         await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
 
         // Descarga del archivo CSV y obtiene la ruta del archivo descargado
