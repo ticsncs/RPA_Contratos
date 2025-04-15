@@ -23,6 +23,13 @@ import { debug } from 'console';
         await page.getByRole('menuitem', { name: 'Pagos' }).click();
         await page.waitForTimeout(5000);
 
+        // Aplicar filtros
+        await page.getByRole('button', { name: ' Filtros' }).click();
+        await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
+        await page.getByRole('menuitemcheckbox', { name: 'Publicado' }).click();
+        await page.getByRole('button', { name: ' Filtros' }).click();
+        await page.waitForTimeout(5000);
+
         await page.getByRole('button', { name: ' Filtros' }).click();
         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
         await page.getByRole('combobox').first().selectOption('journal_id');
@@ -31,6 +38,8 @@ import { debug } from 'console';
         await page.getByRole('button', { name: ' Filtros' }).click();
         await page.waitForTimeout(5000);
 
+        
+        await page.getByRole('button', { name: ' Filtros' }).click();
         await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
         await page.getByRole('combobox').first().selectOption('date');
         const today = new Date();
@@ -41,51 +50,15 @@ import { debug } from 'console';
         }).replace(/\//g, '-');
         await page.getByRole('textbox').fill(formattedDate);
         await page.getByRole('button', { name: 'Aplicar' }).click();
+        await page.getByRole('button', { name: ' Filtros' }).click();
         await page.waitForTimeout(5000);
 
-        await page.getByRole('button', { name: 'Añadir Filtro personalizado' }).click();
-         
-        await page.pause();
-        await page.getByRole('combobox').first().selectOption('payment_date');
-        await page.getByRole('textbox').selectOption('payment_date');
-        await page.getByRole('combobox').nth(1).selectOption('<');
-        await page.getByRole('button', { name: 'Aceptar' }).click();
-        await page.getByRole('button', { name: 'Aplicar' }).click();
-        await page.getByRole('img', { name: 'Remove' }).nth(3).click();
-        await page.getByRole('row', { name: 'Fecha  Número  Referencia' }).locator('label').click();
-        await page.getByRole('button', { name: ' Acción' }).click();
-        await page.getByRole('menuitemcheckbox', { name: 'Exportar' }).click();
-        await page.getByRole('searchbox', { name: 'Buscar', exact: true }).click();
-        await page.getByRole('searchbox', { name: 'Buscar', exact: true }).fill('fecha');
-        await page.getByRole('searchbox', { name: 'Buscar', exact: true }).dblclick();
-        await page.getByRole('searchbox', { name: 'Buscar', exact: true }).fill('');
-
-
-        await page.pause();
-
-        // Esperar a que cargue la página principal
-        await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
-
-        // Aplicar filtros
-        await interactWithElement(page, 'span.o_dropdown_title:has-text("Filtros")', 'click');
-        await interactWithElement(page, 'div.o-dropdown-menu', 'wait', { waitTime: 1000 });
-
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Activos")', 'click'); 
-        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Cortados")', 'click'); 
-        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Lista de Retiro")', 'click'); 
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Proceso")', 'click');
-
-        // Pausa para depuración
-       // await page.pause();
 
         // Selección de contratos
         await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 2000 });
         await interactWithElement(page, 'th.o_list_record_selector', 'click');
         await interactWithElement(page, 'a.o_list_select_domain', 'wait', { waitTime: 2000 });
         await interactWithElement(page, 'a.o_list_select_domain', 'click');
-
-
-        //await page.pause();
 
         // Click sobre el botón de Acción y seleccionar Exportar
         await interactWithElement(page, 'span.o_dropdown_title:has-text("Acción")', 'click');
