@@ -17,6 +17,8 @@ export const config = {
     smtpUser: process.env.SMTP_USER || '',
     smtpPass: process.env.SMTP_PASS || '',
     smtpRejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED || false,
+    apiMongoUrl: process.env.API_MONGO_URL || 'http://190.96.96.20:3050/api/',
+    
     
 };
 

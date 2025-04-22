@@ -4,6 +4,8 @@ import { downloadFile } from './utils/f_dowload';
 import path from 'path';
 import axios from 'axios';
 import { config } from './core/config';
+import fs from 'fs';
+import FormData from 'form-data';
 
 (async () => {
     try {
@@ -58,33 +60,28 @@ import { config } from './core/config';
         await browser.close();
 
         if (downloadedFilePath) {
-            console.log(`✅ Archivo descargado correctamente: ${downloadedFilePath}`);
-
-            // Extraer el nombre de archivo del path completo
             const fileName = path.basename(downloadedFilePath);
-
-            // Llamar a la API con el nombre del archivo
-            try {
-                const apiUrl = `http://190.96.96.20:3050/api/csv/process-optimized/${fileName}`;
-                console.log(`🔄 Enviando archivo a API: ${apiUrl}`);
-
-                const response = await axios.get(apiUrl);
-                console.log('✅ Respuesta de la API:', response.data);
-
-                //Borrar el archivo descargado
-                const fs = require('fs');
-                fs.unlinkSync(downloadedFilePath);
-                console.log(`✅ Archivo eliminado: ${downloadedFilePath}`);
-
-            } catch (apiError) {
-                console.error('❌ Error al llamar a la API:', apiError);
-            }
-        } else {
+            console.log(`✅ Archivo descargado correctamente: ${fileName}`);
+      
+            const apiUrl = 'http://127.0.0.1:3040/api/1.0/odoo/contracts';
+            const form = new FormData();
+      
+            form.append('file', fs.createReadStream(downloadedFilePath));
+            form.append('file_name', fileName);
+      
+            const response = await axios.post(apiUrl, form, {
+              headers: form.getHeaders(),
+            });
+      
+            console.log('✅ Respuesta de la API:', response.data);
+      
+            fs.unlinkSync(downloadedFilePath);
+            console.log(`🧹 Archivo eliminado: ${downloadedFilePath}`);
+          } else {
             console.log('❌ No se pudo descargar el archivo.');
-        }
-
-        console.log('🚀 Proceso finalizado con éxito.');
-        console.log('✅ Automatización completada con éxito.');
+          }
+      
+          console.log('🚀 Proceso finalizado con éxito.');
     } catch (error) {
         console.error('❌ Error durante la automatización:', error);
         console.log(`❌ Error en la automatización: ${(error as Error).message}`);
