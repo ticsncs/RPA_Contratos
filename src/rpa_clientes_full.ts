@@ -63,7 +63,7 @@ import FormData from 'form-data';
             const fileName = path.basename(downloadedFilePath);
             console.log(`✅ Archivo descargado correctamente: ${fileName}`);
       
-            const apiUrl= config.apiMongoUrl+'/1.0/odoo/contracts';
+            const apiUrl= config.apiMongoUrl+'1.0/odoo/contracts';
             const form = new FormData();
       
             form.append('file', fs.createReadStream(downloadedFilePath));
