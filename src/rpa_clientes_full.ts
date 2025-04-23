@@ -13,7 +13,7 @@ import FormData from 'form-data';
 
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            false,
+            true,
             'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
         );
 
