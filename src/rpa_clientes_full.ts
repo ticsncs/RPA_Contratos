@@ -13,33 +13,26 @@ import FormData from 'form-data';
 
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
-            true,
+            false,
             'https://erp.nettplus.net/web#menu_id=385&cids=1&action=576&model=contract.contract&view_type=list'
         );
 
         // Esperar a que cargue la página principal
         await interactWithElement(page, 'span.text-900:has-text("Contratos")', 'wait');
 
+        // Localiza la barra de búsqueda y limpia el campo de búsqueda
+        await page.getByRole('searchbox', { name: 'Buscar registros' }).click();
+        await page.getByRole('searchbox', { name: 'Buscar registros' }).fill('');
+        
         // Aplicar filtros
-        await interactWithElement(page, 'span.o_dropdown_title:has-text("Filtros")', 'click');
-        await interactWithElement(page, 'div.o-dropdown-menu', 'wait', { waitTime: 1000 });
-
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Activos")', 'click'); 
-        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("Cortados")', 'click'); 
-        //await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Lista de Retiro")', 'click'); 
-        await interactWithElement(page, 'span.dropdown-item.o_menu_item:has-text("En Proceso")', 'click');
-
-        // Pausa para depuración
-       // await page.pause();
+        await page.getByRole('button', { name: ' Favoritos' }).click();
+        await page.getByRole('menuitemcheckbox', { name: 'RPA_mongo' }).click();
 
         // Selección de contratos
         await interactWithElement(page, 'th.o_list_record_selector', 'wait', { waitTime: 2000 });
         await interactWithElement(page, 'th.o_list_record_selector', 'click');
         await interactWithElement(page, 'a.o_list_select_domain', 'wait', { waitTime: 2000 });
         await interactWithElement(page, 'a.o_list_select_domain', 'click');
-
-
-        //await page.pause();
 
         // Click sobre el botón de Acción y seleccionar Exportar
         await interactWithElement(page, 'span.o_dropdown_title:has-text("Acción")', 'click');
