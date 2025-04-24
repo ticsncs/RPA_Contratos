@@ -18,6 +18,7 @@ export class ContractExportAutomation {
     private readonly exportDate: string,
     private readonly exportFileName: string,
     private readonly exportFileExt: string,
+    private readonly nameTemplate: string,
     private readonly accountingService = new AccountingService(),
     private readonly odooExportService = new OdooExportService()
   ) {}
@@ -68,7 +69,7 @@ export class ContractExportAutomation {
     await this.odooExportService.selectAllRecords(this.page);
 
     this.logger.info('➡ Exporting records...');
-    const filePath = await this.odooExportService.exportRecords(this.page, this.exportFileName, this.exportFileExt);
+    const filePath = await this.odooExportService.exportRecords(this.page, this.exportFileName, this.exportFileExt, this.nameTemplate );
 
     if (filePath) {
       this.logger.success(`📁 File downloaded: ${path.basename(filePath)}`);

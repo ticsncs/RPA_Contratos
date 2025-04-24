@@ -34,8 +34,9 @@ const DEFAULT_TIMEOUT = 10000;
   /**
    * Export selected records to CSV
    */
-  async exportRecords(page:Page, name_file:string, ext_file:string): Promise<string | null> {
+  async exportRecords(page:Page, name_file:string, ext_file:string, name_template: string): Promise<string | null> {
     logger.info('Exporting records to CSV');
+    console.log(name_template, name_file, ext_file);
     if (!page) throw new Error('Page not initialized');
     
     try {
@@ -52,7 +53,7 @@ const DEFAULT_TIMEOUT = 10000;
       
       // Select export field template
       await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
-      await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: 'RPA_pagos_ct' });
+      await interactWithElement(page, 'select.o_exported_lists_select', 'selectOption', { label: name_template });
       await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
       
       // Download the file
