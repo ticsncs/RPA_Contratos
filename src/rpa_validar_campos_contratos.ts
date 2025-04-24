@@ -1,7 +1,7 @@
 
 import { interactWithElement } from './utils/handler-elements';
 
-import { login } from './core/login';
+import { login } from './core/login2';
 import { downloadFile, generateReport } from './utils/handler-files';
 
 (async () => {

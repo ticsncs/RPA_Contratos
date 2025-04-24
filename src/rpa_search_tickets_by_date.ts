@@ -1,5 +1,5 @@
 import { interactWithElement } from './utils/handler-elements';
-import { login } from './core/login';
+import { login } from './core/login2';
 import { downloadFile } from './utils/handler-files';
 import { List } from '@slack/web-api/dist/types/response/ChatPostMessageResponse';
 

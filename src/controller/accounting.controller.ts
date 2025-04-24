@@ -9,7 +9,7 @@ import { cleanup } from '../utils/clean-resources';
 import { Logger } from '../../src/utils/logger';
 import {config} from '../core/config';
 
-export class ContractExportAutomation {
+export class AccountignExportAutomation {
   private readonly logger = new Logger('contract-export');
   private browser: Browser | null = null;
   private page: Page | null = null;

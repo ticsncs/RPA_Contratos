@@ -3,7 +3,7 @@ import { Logger } from '../../utils/logger';
 const DEFAULT_TIMEOUT = 10000;
 
 // Logger instance
-const logger = new Logger('contract-export');
+const logger = new Logger('accounting-export');
 const ACCOUNTIG_MODULE = 'https://erp.nettplus.net/web#cids=1&action=308&model=account.journal&view_type=kanban&menu_id=258';
 
 /**

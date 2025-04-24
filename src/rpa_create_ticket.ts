@@ -1,4 +1,4 @@
-import { login } from './core/login';
+import { login } from './core/login2';
 import { interactWithElement } from './utils/handler-elements';
 //import pLimit from 'p-limit';
 

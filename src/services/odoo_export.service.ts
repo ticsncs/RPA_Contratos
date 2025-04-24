@@ -49,7 +49,9 @@ const DEFAULT_TIMEOUT = 10000;
         .waitFor({ state: 'visible', timeout: DEFAULT_TIMEOUT });
       
       // Select CSV format
-      await interactWithElement(page, 'label[for="o_radioCSV"]', 'click');
+      await interactWithElement(page, `label[for="o_radio${ext_file.toUpperCase()}"]`, 'wait');
+      await interactWithElement(page, `label[for="o_radio${ext_file.toUpperCase()}"]`, 'click');
+      
       
       // Select export field template
       await interactWithElement(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
@@ -66,6 +68,7 @@ const DEFAULT_TIMEOUT = 10000;
       
       if (downloadedFilePath) {
         logger.success(`File downloaded: ${path.basename(downloadedFilePath)}`);
+        console.log('File downloaded  service:', downloadedFilePath);
         return downloadedFilePath;
       } else {
         logger.error('File download failed');
