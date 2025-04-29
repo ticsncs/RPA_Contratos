@@ -1,41 +1,49 @@
-
 import { Logger } from '../../utils/logger';
-
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import FormData from 'form-data';
-import { config } from '../../core/config';
+import dotenv from 'dotenv';
 
-const logger = new Logger('contract-export');
-export class MongoAPIService{
-   async  uploadContractsToApi(filePath: string): Promise<void> {
-    logger.info('Uploading exported file to API');
-  
+dotenv.config();
+
+const logger = new Logger('csv-uploader');
+
+export class MongoAPIService {
+  private readonly baseUrl: string;
+
+  constructor() {
+    this.baseUrl = process.env.API_MONGO_URL || '190.96.96.20'; // ✅ Base por defecto
+  }
+
+ 
+  async uploadCsvToApi(filePath: string, route: string): Promise<void> {
+    logger.info('🚀 Iniciando subida de archivo CSV a API');
+
     try {
-      const fileName = filePath;
-      console.log("download file name",fileName);
+      const fileName = path.basename(filePath); // Solo el nombre
+      logger.info(`📂 Archivo a subir: ${fileName}`);
+
       const form = new FormData();
-  
       form.append('file', fs.createReadStream(filePath));
       form.append('file_name', fileName);
-  
-      const apiUrl = `${config.apiMongoUrl}1.0/odoo/contracts`;
-  
-      const response = await axios.post(apiUrl, form, {
+
+      // Construimos la URL final
+      const endpointUrl = `${this.baseUrl}${route}`;
+
+      const response = await axios.post(endpointUrl, form, {
         headers: form.getHeaders(),
       });
-  
-      logger.success(`API response: ${JSON.stringify(response.data)}`);
-  
-      // Clean up the downloaded file
+
+      logger.success(`✅ Respuesta de la API: ${JSON.stringify(response.data)}`);
+
+      // Eliminar el archivo temporal
       fs.unlinkSync(filePath);
-      logger.info(`Temporary file deleted: ${filePath}`);
-    } catch (error) {
-      logger.error('API upload failed', error);
+      logger.info(`🧹 Archivo temporal eliminado: ${filePath}`);
+      
+    } catch (error: any) {
+      logger.error('❌ Falló la subida del archivo CSV', error?.message || error);
       throw new Error('Upload to API failed');
     }
   }
 }
-
-

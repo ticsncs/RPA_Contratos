@@ -6,9 +6,10 @@ import { OdooExportService } from '../services/odoo_export.service';
 import { BillingService } from '../services/billing.service';
 import { cleanup } from '../utils/clean-resources';
 import { Logger } from '../utils/logger';
+import { MongoAPIService } from '../services/api/mongo.service';
 import { navigateToBilling } from '../routes/accounting/cli_billing-routes';
 
-export class ContractExportAutomation {
+export class BillingExportAutomation {
   private readonly logger = new Logger('contract-export');
   private browser: Browser | null = null;
   private page: Page | null = null;
@@ -20,7 +21,9 @@ export class ContractExportAutomation {
     private readonly exportFileNameTemplate: string,
     private readonly billingService = new BillingService(),
     //private readonly accountingService = new AccountingService(),
-    private readonly odooExportService = new OdooExportService()
+    private readonly odooExportService = new OdooExportService(),
+      private readonly mongoAPIService = new MongoAPIService()
+    
   ) {}
 
   /**
@@ -74,12 +77,26 @@ export class ContractExportAutomation {
     console.log("Exportando " , this.exportFileName, this.exportFileExt, this.exportFileNameTemplate);
     const filePath = await this.odooExportService.exportRecords(this.page, this.exportFileName, this.exportFileExt, this.exportFileNameTemplate );
 
-    if (filePath) {
-      this.logger.success(`📁 File downloaded: ${path.basename(filePath)}`);
-      this.cleanupResources();
-    } else {
-      throw new Error('Export failed - no file was downloaded.');
-    }
+     if (filePath) {
+                this.logger.success(`📁 File downloaded: ${path.basename(filePath)} for send API MongoDB`);
+            
+                this.mongoAPIService.uploadCsvToApi(
+                    filePath,
+                    '/odoo/billings'
+                )
+                .then(() => {
+                    this.logger.success(`✅ File uploaded to API MongoDB successfully`);
+                })
+                .catch((error) => {
+                    this.logger.error('❌ Error uploading file to API MongoDB', error);
+                })
+                .finally(() => {
+                    this.cleanupResources(); // 
+                });
+            
+            } else {
+                throw new Error('❌ Export failed - no file was downloaded.');
+            }
   }
 
   /**

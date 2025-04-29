@@ -20,7 +20,7 @@ export class ContractExportAutomation {
         private readonly nameTemplate: string,
         private readonly odooExportService = new OdooExportService(),
         private readonly contractService = new ContractService(),
-        private readonly monogoAPIService = new MongoAPIService()
+        private readonly mongoAPIService = new MongoAPIService()
     ) { }
 
     /**
@@ -70,18 +70,26 @@ export class ContractExportAutomation {
         console.log('filePath controller', filePath);
 
         if (filePath) {
-            this.logger.success(`📁 File downloaded: ${path.basename(filePath)}  for send API MongoDB`);
-            this.monogoAPIService.uploadContractsToApi(filePath).then(() => {
-                this.logger.success(`📁 File uploaded to API MongoDB successfully`);
-            }
-            ).catch((error) => {
+            this.logger.success(`📁 File downloaded: ${path.basename(filePath)} for send API MongoDB`);
+        
+            this.mongoAPIService.uploadCsvToApi(
+                filePath,
+                '/odoo/contracts'
+            )
+            .then(() => {
+                this.logger.success(`✅ File uploaded to API MongoDB successfully`);
+            })
+            .catch((error) => {
                 this.logger.error('❌ Error uploading file to API MongoDB', error);
-            }
-            );
-            this.cleanupResources();
+            })
+            .finally(() => {
+                this.cleanupResources(); // 
+            });
+        
         } else {
-            throw new Error('Export failed - no file was downloaded.');
+            throw new Error('❌ Export failed - no file was downloaded.');
         }
+        
     }
 
     /**

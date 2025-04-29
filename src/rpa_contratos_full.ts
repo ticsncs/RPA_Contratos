@@ -5,8 +5,6 @@ import { downloadFile } from './utils/handler-files';
 
     try {
         console.log('🤖 Iniciando proceso de  exportación de todos los contratos...');
-
-
         // Iniciar sesión en el sistema
         const { browser, page } = await login(
             true,
@@ -48,7 +46,6 @@ import { downloadFile } from './utils/handler-files';
                 console.error('❌ Error durante la descarga:', err);
             }
         }
-      
         // Cierre del navegador
         await browser.close();
         console.log('🚀 Proceso finalizado con éxito.');
