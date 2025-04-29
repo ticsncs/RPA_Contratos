@@ -1,4 +1,4 @@
-import { runAutomation } from './rpa_create_ticket';
+import { CreateTicketPerContractAutomation } from './controller/contract.controller';
 import { runCutUsersExport } from './rpa_cut_users_by_date';
 import { runSearchTickets } from './rpa_search_tickets_by_date';
 import { ClientOffData } from './core/interfaces/interface-client';
@@ -7,7 +7,9 @@ import { reporteTicketsCobranzas } from './utils/handler-files';
 import { enviarCorreo }  from './utils/handler-mail';
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import PDFDocument from 'pdfkit';
+
+
+
 
 /**
  * Función para obtener una fecha en formato "YYYY-MM-DD" restando días o meses.
@@ -231,37 +233,31 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
         console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${descripcion})`);
 
         try {
-           const clientes = await runAutomation(
-            cliente.Código,
-            {
-                user: cliente.Cedula,
-                title: `RPA  ${today}: Corte clientes por ${descripcion}`,
-                team: 'PAGOS Y COBRANZAS',
-                assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
-                channel: 'PERSONALIZADO',
-                category: 'Pagos y cobranzas',
-                tag: '',
-            },
-            "Cortado"
-        );
 
-            if (clientes === false) {
-                saveGeneratedTickets(`${cliente.Cliente} (${descripcion}) - Error al generar ticket`);
-                console.error(`❌ Error al generar ticket para ${cliente.Cliente} (${descripcion})`);
-                continue;
-            }
-
-            console.log(`✅ Ticket generado exitosamente para: ${cliente.Cliente}`);
+            const runCreateTicket = new CreateTicketPerContractAutomation(
+                cliente.Código,
+                {
+                    user: cliente.Cedula,
+                    title: `RPA  ${today}: Corte clientes por ${descripcion}`,
+                    team: 'PAGOS Y COBRANZAS',
+                    assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
+                    channel: 'PERSONALIZADO',
+                    category: 'Pagos y cobranzas',
+                    tag: '',
+                }
+            );
+            await runCreateTicket.run(); // Ejecutar el proceso de creación de tickets
 
         } catch (error) {
             console.error(`❌ Error al generar ticket para ${cliente.Cliente}:`, error);
         }
 
         console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Delay de 30 segundos
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Delay de 2 segundos
     }
 
     console.log(`✅ Todos los tickets para (${descripcion}) han sido generados correctamente.`);
+    
 }
 
 

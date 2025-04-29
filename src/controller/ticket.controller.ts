@@ -9,7 +9,8 @@ import { navigateToTickets } from '../routes/tickets/cli_tickets.route';
 import { TicketService } from '../services/tickets.service';
 import { enviarCorreo } from '../utils/handler-mail';
 import fs from 'fs';
-import { navigateToContractDashboard } from '../routes/contract/contract.route';
+
+
 export class TicketUnattendedNotificationAutomation {
     private readonly logger = new Logger('contract-export');
     private browser: Browser | null = null;
@@ -112,4 +113,5 @@ export class TicketUnattendedNotificationAutomation {
         await cleanup(this.browser!);
     }
 }
+
 

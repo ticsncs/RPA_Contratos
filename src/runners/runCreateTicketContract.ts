@@ -10,12 +10,14 @@ const dataTicket: TicketData = {
     assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
     channel: 'PERSONALIZADO',
     category: 'Pagos y cobranzas',
-    tag: '',
+    tag: 'PROCEDENTE',
 };
 /**
  * Execute the automation
  */
 (async () => {
+    console.time("Execution Time");
     const automation = new CreateTicketPerContractAutomation(searchContract, dataTicket);
     await automation.run();
+    console.timeEnd("Execution Time");
 })();

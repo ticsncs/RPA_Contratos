@@ -102,7 +102,6 @@ export class ContractExportAutomation {
 }
 
 
-
 export class CreateTicketPerContractAutomation {
     private readonly logger = new Logger('ticket-export');
     private browser: Browser | null = null;
@@ -157,9 +156,18 @@ export class CreateTicketPerContractAutomation {
 
         this.logger.info(`➡ Opening contract...`);
         await this.contractService.openContract(this.page, this.ticketData.user);
-        await this.page.pause(); // Wait for the contract to open
 
+        this.logger.info(`➡ Opening ticket...`);
+        await this.contractService.openTicketPerContract(this.page);
+
+        this.logger.info(`➡ Creating ticket...`);
+        await this.contractService.writeTicketPerContract(this.page, this.ticketData.title, this.ticketData.team, this.ticketData.assignedUser, this.ticketData.channel, this.ticketData.category, this.ticketData.tag);
         
+        this.logger.info(`➡ Saving ticket...`);
+        await this.contractService.saveTicketPerContract(this.page);
+
+        this.logger.info(`➡ Cleaning up resources...`);
+        this.cleanupResources();     
 
        
     }
@@ -171,4 +179,83 @@ export class CreateTicketPerContractAutomation {
         this.logger.info('🧹 Cleaning up resources...');
         await cleanup(this.browser!);
     }
+}
+
+
+export class ContractStateDailyExportAutomation {
+    private readonly logger = new Logger('contract-export');
+    private browser: Browser | null = null;
+    private page: Page | null = null;
+
+    constructor(
+        private readonly status: string,
+        private readonly fileName: string,
+        private  readonly fileExt: string,
+        private readonly nameTemplate: string,
+        private readonly odooExportService = new OdooExportService(),
+        private readonly contractService = new ContractService(),
+    ) { }
+
+    /**
+     * Initialize browser and page context.
+     */
+    private async initializeBrowser(): Promise<void> {
+        const session = await initialize(this.page!, this.browser!, false);
+        this.page = session.page;
+        this.browser = session.browser;
+    }
+
+
+     /**
+     * Run the complete automation process with structured error handling.
+     */
+     async run(): Promise<void> {
+        this.logger.info('🔄 Starting contract export automation...');
+
+        try {
+            await this.initializeBrowser();
+            await this.processExport();
+
+            this.logger.success('✅ Contract export completed successfully.');
+        } catch (error) {
+            this.logger.error('❌ Automation process failed.', error);
+        } finally {
+            await this.cleanupResources();
+        }
+    }
+
+    /**
+     * Execute each step of the automation sequentially.
+     */
+    private async processExport(): Promise<void> {
+        if (!this.page) throw new Error('Page not initialized.');
+
+        this.logger.info('➡ Navigating to Contract Dashboard...');
+        await navigateToContractDashboard(this.page);
+
+        this.logger.info(`➡ Applying filters for contracts...`);
+        await this.contractService.applyFiltersStausContractDayly(this.page, this.status, '24/04/2025');
+
+        await this.odooExportService.selectAllRecords(this.page);
+        this.logger.info('➡ Exporting records...');
+        const filePath = await this.odooExportService.exportRecords(this.page, this.fileName, this.fileExt, this.nameTemplate);
+        console.log('filePath controller', filePath);
+        await this.page.pause();
+
+
+        this.logger.info(`➡ Cleaning up resources...`);
+        this.cleanupResources();     
+
+       
+    }
+
+    /**
+     * Ensure resources are cleaned up after execution.
+     */
+    private async cleanupResources(): Promise<void> {
+        this.logger.info('🧹 Cleaning up resources...');
+        await cleanup(this.browser!);
+    }
+
+    
 }
