@@ -11,10 +11,75 @@ import { enviarCorreo } from '../utils/handler-mail';
 import fs from 'fs';
 
 
-export class TicketUnattendedNotificationAutomation {
-    private readonly logger = new Logger('contract-export');
-    private browser: Browser | null = null;
-    private page: Page | null = null;
+/**
+ * Base automation class that handles common browser operations
+ */
+abstract class BaseAutomation {
+    protected browser: Browser | null = null;
+    protected page: Page | null = null;
+    protected logger: Logger;
+
+    constructor(loggerName: string) {
+        this.logger = new Logger(loggerName);
+    }
+
+    /**
+     * Initialize browser and page context
+     */
+    protected async initializeBrowser(): Promise<void> {
+        try {
+            const session = await initialize(this.page!, this.browser!, false);
+            this.page = session.page;
+            this.browser = session.browser;
+        } catch (error) {
+            this.logger.error('Failed to initialize browser', error);
+            throw new Error('Browser initialization failed');
+        }
+    }
+
+    /**
+     * Navigate to ticket dashboard and ticket section
+     */
+    protected async navigateToTicketSection(): Promise<void> {
+        if (!this.page) throw new Error('Page not initialized');
+        
+        try {
+            this.logger.info('➡ Navigating to Ticket Dashboard...');
+            await navigateToTicketDashboard(this.page);
+
+            this.logger.info('➡ Navigating to Tickets section...');
+            await navigateToTickets(this.page);
+        } catch (error) {
+            this.logger.error('Navigation failed', error);
+            throw new Error('Failed to navigate to ticket section');
+        }
+    }
+
+    /**
+     * Ensure resources are cleaned up after execution
+     */
+    protected async cleanupResources(): Promise<void> {
+        this.logger.info('🧹 Cleaning up resources...');
+        
+        if (this.browser) {
+            try {
+                await cleanup(this.browser);
+                this.browser = null;
+                this.page = null;
+            } catch (error) {
+                this.logger.error('Error during cleanup', error);
+            }
+        }
+    }
+
+    /**
+     * Run the automation process with proper error handling
+     */
+    abstract run(): Promise<any>;
+}
+
+
+export class TicketUnattendedNotificationAutomation extends BaseAutomation {
 
 
     constructor(
@@ -26,16 +91,11 @@ export class TicketUnattendedNotificationAutomation {
         private readonly nameTemplate: string,
         private readonly odooExportService = new OdooExportService(),
         private readonly ticketService = new TicketService(),
-    ) { }
-
-    /**
-     * Initialize browser and page context.
-     */
-    private async initializeBrowser(): Promise<void> {
-        const session = await initialize(this.page!, this.browser!, false);
-        this.page = session.page;
-        this.browser = session.browser;
+    ) {
+        super('unattended-ticket-notification');
     }
+
+    
 
     /**
      * Run the complete automation process with structured error handling.
@@ -105,13 +165,72 @@ export class TicketUnattendedNotificationAutomation {
         }
     }
 
-    /**
-     * Ensure resources are cleaned up after execution.
-     */
-    private async cleanupResources(): Promise<void> {
-        this.logger.info('🧹 Cleaning up resources...');
-        await cleanup(this.browser!);
-    }
+    
 }
 
 
+
+export class TicketPerContractAutomation extends BaseAutomation {
+    constructor(
+        private readonly code: string,
+        private readonly dateStart: string,
+        private readonly dateEnd: string,
+        private readonly ticketService = new TicketService(),
+        private readonly odooExportService= new OdooExportService(),
+    ) {
+        super('tickets-per-contract');
+    }
+
+    /**
+     * Run the complete automation process with structured error handling
+     */
+    async run(): Promise<string[][] | null> {
+        this.logger.info('🔄 Starting tickets per contract automation...');
+        let tickets: string[][] | null = null;
+
+        try {
+            await this.initializeBrowser();
+            tickets = await this.processExport();
+            this.logger.success('✅ Tickets per contract export completed successfully');
+            return tickets;
+        } catch (error) {
+            this.logger.error('❌ Automation process failed', error);
+            return null;
+        } finally {
+            await this.cleanupResources();
+        }
+    }
+
+    /**
+     * Execute each step of the automation sequentially
+     */
+    private async processExport(): Promise<string[][]> {
+        if (!this.page) throw new Error('Page not initialized');
+
+        await this.navigateToTicketSection();
+        
+        this.logger.info(`➡ Applying filters for contract ${this.code} (${this.dateStart} to ${this.dateEnd})`);
+        await this.ticketService.applyFiltersTicketsPerContract(
+            this.page,
+            this.code,
+            this.dateStart,
+            this.dateEnd
+        );
+
+        this.logger.info('➡ Exporting ticket records...');
+        
+        const result = await this.odooExportService.exportRecordsTableOdoo(this.page);
+        
+        // Extract the tickets array from the result object
+        const tickets = result.tickets || [];
+        
+        if (!tickets || tickets.length === 0) {
+            this.logger.warn('No tickets found for the specified criteria');
+            return [];
+        } else {
+            this.logger.success(`Retrieved ${tickets.length} ticket records`);
+        }
+        
+        return tickets;
+    }
+}

@@ -80,4 +80,33 @@ const DEFAULT_TIMEOUT = 10000;
     }
   }
 
+
+  /**
+   * Export registers Odoo
+   * * @param page - The Playwright page object
+   * * @returns {Promise<{ page: Page, tickets: string[][] | null }>} - Returns the page and extracted tickets
+   * * @description This function extracts data from a table on the Odoo page and filters out empty rows and fields.
+   *  */
+  async exportRecordsTableOdoo(page: Page): Promise<{ page: Page, tickets: string[][] | null }> {
+    try {
+      // Extract table data and filter out empty rows and fields
+      const tickets = await page.$$eval('table tbody tr', rows => {
+        return rows.map(row => {
+          const columns = Array.from(row.querySelectorAll('td'))
+            .map(td => td.innerText.trim())
+            .filter(text => text !== ''); // Filter out empty fields
+          return columns;
+        }).filter(columns => columns.length > 0); // Filter out empty rows
+      });
+
+      logger.info('Extracted tickets:'); // Log the extracted tickets
+
+
+      return { page, tickets };
+    } catch (error) {
+      logger.error('Failed to export records', error);
+      return { page, tickets: null };
+    }
+  }
+
 }

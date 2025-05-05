@@ -188,6 +188,7 @@ export class ContractStateDailyExportAutomation {
     private page: Page | null = null;
 
     constructor(
+        private readonly date_search: string,
         private readonly status: string,
         private readonly fileName: string,
         private  readonly fileExt: string,
@@ -209,16 +210,19 @@ export class ContractStateDailyExportAutomation {
      /**
      * Run the complete automation process with structured error handling.
      */
-     async run(): Promise<void> {
+     async run(): Promise<string | null> {
+
         this.logger.info('🔄 Starting contract export automation...');
 
         try {
             await this.initializeBrowser();
-            await this.processExport();
-
+            const result = await this.processExport(); // ✅ CAPTURAR Y RETORNAR
             this.logger.success('✅ Contract export completed successfully.');
+            return result; // ✅ DEVOLVER RESULTADO REAL
+            
         } catch (error) {
             this.logger.error('❌ Automation process failed.', error);
+            return null; // 🔴 PARA QUE procesarClientesCortados() maneje correctamente
         } finally {
             await this.cleanupResources();
         }
@@ -227,28 +231,23 @@ export class ContractStateDailyExportAutomation {
     /**
      * Execute each step of the automation sequentially.
      */
-    private async processExport(): Promise<void> {
+    private async processExport(): Promise<string | null> {
         if (!this.page) throw new Error('Page not initialized.');
-
+    
         this.logger.info('➡ Navigating to Contract Dashboard...');
         await navigateToContractDashboard(this.page);
-
+    
         this.logger.info(`➡ Applying filters for contracts...`);
-        await this.contractService.applyFiltersStausContractDayly(this.page, this.status, '24/04/2025');
-
+        await this.contractService.applyFiltersStausContractDayly(this.page, this.status, this.date_search);
+    
         await this.odooExportService.selectAllRecords(this.page);
         this.logger.info('➡ Exporting records...');
         const filePath = await this.odooExportService.exportRecords(this.page, this.fileName, this.fileExt, this.nameTemplate);
-        console.log('filePath controller', filePath);
-        await this.page.pause();
-
-
-        this.logger.info(`➡ Cleaning up resources...`);
-        this.cleanupResources();     
-
-       
+        this.logger.info(`📁 File exported to: ${filePath}`);
+    
+        return filePath;
     }
-
+    
     /**
      * Ensure resources are cleaned up after execution.
      */
