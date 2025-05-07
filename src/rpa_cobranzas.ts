@@ -4,7 +4,7 @@ import { enviarCorreo }  from './utils/handler-mail';
 import fs from 'fs';
 import csvParser from 'csv-parser';
 import { TicketPerContractAutomation } from './controller/ticket.controller';
-
+import { reporteTicketsCobranzas } from './utils/handler-files';
 
 
 
@@ -189,7 +189,7 @@ async function generateTicketsForCortados() {
             Resultado: ticket.Detalles.map(d => `{${d.Código}, ${d.FechaInicio}, ${d.Estado}}`).join(' | ')
         }));
 
-        /*reporteTicketsCobranzas(formattedTickets, './src/Files/ticketsCobranzas.pdf'); // Generar reporte de tickets
+        reporteTicketsCobranzas(formattedTickets, './src/Files/ticketsCobranzas.pdf'); // Generar reporte de tickets
         enviarCorreo(
             'djimenez@nettplus.net',
             [], 
@@ -197,12 +197,12 @@ async function generateTicketsForCortados() {
             './src/Files/ticketsCobranzas.pdf', 
             'Clientes con tickets generados antes del flujo de cobranzas. /n Se recomienda revisar los tickets generados.', 
             '#Clientes Con Tickets Generados'); // Enviar reporte por correo
-            */
+            
 
         
 
         // Generar tickets de manera secuencial
-        /*for (const cliente of clientsData) {
+        for (const cliente of clientsData) {
             console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${cliente.descripcion})`);
 
             try {
@@ -215,7 +215,7 @@ async function generateTicketsForCortados() {
 
             console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
             await new Promise(resolve => setTimeout(resolve, 5000)); // Esperar 30 segundos
-        }*/
+        }
 
         
         console.log('✅ Todos los tickets han sido generados correctamente.');
