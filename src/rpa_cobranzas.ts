@@ -1,13 +1,12 @@
-import { runAutomation } from './rpa_create_ticket';
-import { runCutUsersExport } from './rpa_cut_users_by_date';
-import { runSearchTickets } from './rpa_search_tickets_by_date';
+import { ContractStateDailyExportAutomation, CreateTicketPerContractAutomation } from './controller/contract.controller';
 import { ClientOffData } from './core/interfaces/interface-client';
-import { saveGeneratedTickets } from '../src/utils/handler-bdTemporal';
-import { reporteTicketsCobranzas } from './utils/handler-files';
 import { enviarCorreo }  from './utils/handler-mail';
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import PDFDocument from 'pdfkit';
+import { TicketPerContractAutomation } from './controller/ticket.controller';
+import { reporteTicketsCobranzas } from './utils/handler-files';
+
+
 
 /**
  * Función para obtener una fecha en formato "YYYY-MM-DD" restando días o meses.
@@ -24,8 +23,18 @@ const obtenerFechaModificada = (cantidad: number, unidad: "days" | "months"): st
 const procesarClientesCortados = async (dias: number, unidad: "days" | "months", descripcion: string) => {
     try {
         const fecha = obtenerFechaModificada(dias, unidad);
-        const filePath = await downloadFileRPA("Cortado", "RPA_Clientes_Cortados", `clientes_cortados_${descripcion}`, fecha);
-
+        
+        const automation = new ContractStateDailyExportAutomation(
+            fecha,
+            'Cortado',
+            'clientes_cortados',
+            'csv',
+            'RPA_Clientes_Cortados'
+        );
+        
+        const filePath = await automation.run();
+        
+    
         if (!filePath) {
             console.warn(`⚠️ No se encontró archivo para clientes cortados (${descripcion}).`);
             return [];
@@ -114,15 +123,18 @@ async function generateTicketsForCortados() {
             console.log(`🎟 Generando ticket para: ${client.Código} desde ${fechaInicio} hasta ${fechaFin} (${client.descripcion})`);
 
             try {
-                const result = await runSearchTickets(client.Código, fechaInicio, (fechaFin+' 23:59:59'));
+                
+                const  ticketAutomation = new TicketPerContractAutomation(
+                    client.Código,
+                    fechaInicio,
+                    fechaFin
+                ); 
 
-                if (!Array.isArray(result)) {
-                    console.warn(`⚠️ Resultado inválido para ${client.Código}`);
-                    continue;
-                }
+                // Ejecutar la automatización y esperar el resultado
+                const result = await ticketAutomation.run(); // Cambiado de "runCreateTicket.run()" a "ticketAutomation.run()"
 
                 // Filtrar registros válidos
-                const registrosValidos = result.filter(ticket => 
+                const registrosValidos = (result ?? []).filter(ticket => 
                     Array.isArray(ticket) && ticket.length > 0 && ticket.some((field: string) => field.trim() !== '')
                 );
                 console.log(`✅ ${registrosValidos.length} tickets válidos encontrados para ${client.Código}`);
@@ -185,6 +197,7 @@ async function generateTicketsForCortados() {
             './src/Files/ticketsCobranzas.pdf', 
             'Clientes con tickets generados antes del flujo de cobranzas. /n Se recomienda revisar los tickets generados.', 
             '#Clientes Con Tickets Generados'); // Enviar reporte por correo
+            
 
         
 
@@ -231,54 +244,33 @@ async function generarTickets(clientes: ClientOffData[], descripcion: string) {
         console.log(`🎟 Generando ticket para: ${cliente.Cliente} (${descripcion})`);
 
         try {
-           const clientes = await runAutomation(
-            cliente.Código,
-            {
-                user: cliente.Cedula,
-                title: `RPA  ${today}: Corte clientes por ${descripcion}`,
-                team: 'PAGOS Y COBRANZAS',
-                assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
-                channel: 'PERSONALIZADO',
-                category: 'Pagos y cobranzas',
-                tag: '',
-            },
-            "Cortado"
-        );
 
-            if (clientes === false) {
-                saveGeneratedTickets(`${cliente.Cliente} (${descripcion}) - Error al generar ticket`);
-                console.error(`❌ Error al generar ticket para ${cliente.Cliente} (${descripcion})`);
-                continue;
-            }
-
-            console.log(`✅ Ticket generado exitosamente para: ${cliente.Cliente}`);
+            const runCreateTicket = new CreateTicketPerContractAutomation(
+                cliente.Código,
+                {
+                    user: cliente.Cedula,
+                    title: `RPA  ${today}: Corte clientes por ${descripcion}`,
+                    team: 'PAGOS Y COBRANZAS',
+                    assignedUser: 'JIMENEZ ZHINGRE DANIEL ALEJANDRO',
+                    channel: 'PERSONALIZADO',
+                    category: 'Pagos y cobranzas',
+                    tag: '',
+                }
+            );
+            await runCreateTicket.run(); // Ejecutar el proceso de creación de tickets
 
         } catch (error) {
             console.error(`❌ Error al generar ticket para ${cliente.Cliente}:`, error);
         }
 
         console.log('⏳ Esperando 30 segundos antes de procesar el siguiente ticket...');
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Delay de 30 segundos
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Delay de 2 segundos
     }
 
     console.log(`✅ Todos los tickets para (${descripcion}) han sido generados correctamente.`);
+    
 }
 
-
-
-/**
- * Función para descargar la lista de clientes cortados desde Odoo.
- */
-async function downloadFileRPA(status: string, exportTemplate: string, fileName: string, fechaCorte: string): Promise<string | null> {
-    try {
-        console.log(`📥 Descargando archivo de clientes con estado: ${status}...`);
-        const result = await runCutUsersExport(status, exportTemplate, fileName, fechaCorte);
-        return result ?? null;
-    } catch (error) {
-        console.error('❌ Error al descargar archivo:', error);
-        return null;
-    }
-}
 
 
 /**
