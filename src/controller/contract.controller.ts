@@ -1,18 +1,13 @@
-import { Browser, Page } from 'playwright';
 import path from 'path';
-import { initialize } from '../routes/index';
 import { navigateToContractDashboard } from '../routes/contract/contract.route';
 import { OdooExportService } from '../services/odoo_export.service';
-import { cleanup } from '../utils/clean-resources';
-import { Logger } from '../../src/utils/logger';
 import { ContractService } from '../services/contract.service';
 import { MongoAPIService } from '../services/api/mongo.service';
 import { TicketData } from '../core/interfaces/interface-ticket';
+import { BaseAutomationContracts } from './automation.controller';
 
-export class ContractExportAutomation {
-    private readonly logger = new Logger('contract-export');
-    private browser: Browser | null = null;
-    private page: Page | null = null;
+export class ContractExportAutomation extends BaseAutomationContracts {
+    
 
     constructor(
         private readonly exportFileName: string,
@@ -21,17 +16,11 @@ export class ContractExportAutomation {
         private readonly odooExportService = new OdooExportService(),
         private readonly contractService = new ContractService(),
         private readonly mongoAPIService = new MongoAPIService()
-    ) { }
-
-    /**
-     * Initialize browser and page context.
-     */
-    private async initializeBrowser(): Promise<void> {
-        const session = await initialize(this.page!, this.browser!, false);
-        this.page = session.page;
-        this.browser = session.browser;
+    ) {
+        super('contract-export');
     }
 
+   
     /**
      * Run the complete automation process with structured error handling.
      */
@@ -55,9 +44,6 @@ export class ContractExportAutomation {
      */
     private async processExport(): Promise<void> {
         if (!this.page) throw new Error('Page not initialized.');
-
-        this.logger.info('➡ Navigating to Contract Dashboard...');
-        await navigateToContractDashboard(this.page);
 
         this.logger.info(`➡ Applying filters for contracts...`);
         await this.contractService.applyFiltersContracts(this.page);
@@ -92,36 +78,19 @@ export class ContractExportAutomation {
         
     }
 
-    /**
-     * Ensure resources are cleaned up after execution.
-     */
-    private async cleanupResources(): Promise<void> {
-        this.logger.info('🧹 Cleaning up resources...');
-        await cleanup(this.browser!);
-    }
+    
 }
 
 
-export class CreateTicketPerContractAutomation {
-    private readonly logger = new Logger('ticket-export');
-    private browser: Browser | null = null;
-    private page: Page | null = null;
+export class CreateTicketPerContractAutomation extends BaseAutomationContracts {
 
 
     constructor(
         private readonly searchText: string, 
         private readonly ticketData: TicketData,
-        private readonly odooExportService = new OdooExportService(),
         private readonly contractService = new ContractService(),
-    ) { }
-
-    /**
-     * Initialize browser and page context.
-     */
-    private async initializeBrowser(): Promise<void> {
-        const session = await initialize(this.page!, this.browser!, false);
-        this.page = session.page;
-        this.browser = session.browser;
+    ) { 
+        super('create-ticket-per-contract');
     }
 
     /**
@@ -148,7 +117,7 @@ export class CreateTicketPerContractAutomation {
     private async processExport(): Promise<void> {
         if (!this.page) throw new Error('Page not initialized.');
 
-        this.logger.info('➡ Navigating to Contract Dashboard...');
+        this.logger.info(`➡ Navigating to Contract Dashboard...`);
         await navigateToContractDashboard(this.page);
 
         this.logger.info(`➡ Applying filters for tickets...`);
@@ -172,20 +141,12 @@ export class CreateTicketPerContractAutomation {
        
     }
 
-    /**
-     * Ensure resources are cleaned up after execution.
-     */
-    private async cleanupResources(): Promise<void> {
-        this.logger.info('🧹 Cleaning up resources...');
-        await cleanup(this.browser!);
-    }
+    
 }
 
 
-export class ContractStateDailyExportAutomation {
-    private readonly logger = new Logger('contract-export');
-    private browser: Browser | null = null;
-    private page: Page | null = null;
+export class ContractStateDailyExportAutomation  extends BaseAutomationContracts {
+
 
     constructor(
         private readonly date_search: string,
@@ -195,16 +156,11 @@ export class ContractStateDailyExportAutomation {
         private readonly nameTemplate: string,
         private readonly odooExportService = new OdooExportService(),
         private readonly contractService = new ContractService(),
-    ) { }
-
-    /**
-     * Initialize browser and page context.
-     */
-    private async initializeBrowser(): Promise<void> {
-        const session = await initialize(this.page!, this.browser!, false);
-        this.page = session.page;
-        this.browser = session.browser;
+    ) { 
+        super('contract-state-daily-export');
     }
+
+  
 
 
      /**
@@ -248,13 +204,8 @@ export class ContractStateDailyExportAutomation {
         return filePath;
     }
     
-    /**
-     * Ensure resources are cleaned up after execution.
-     */
-    private async cleanupResources(): Promise<void> {
-        this.logger.info('🧹 Cleaning up resources...');
-        await cleanup(this.browser!);
-    }
+  
 
     
 }
+

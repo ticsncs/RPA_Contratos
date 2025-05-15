@@ -33,7 +33,7 @@ jobs:
         with:
           host: "${{ secrets.HOST_SERVER }}"
           username: "${{ secrets.USER_SERVER }}"
-          password: "${{ secrets.PASS_SERVER }}"
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port : "${{ secrets.PORT_SERVER }}"
           script: |
             docker pull alexhm95/rpa_odoo:latest
