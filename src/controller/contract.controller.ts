@@ -45,6 +45,9 @@ export class ContractExportAutomation extends BaseAutomationContracts {
     private async processExport(): Promise<void> {
         if (!this.page) throw new Error('Page not initialized.');
 
+        this.logger.info('➡ Navigating to Contract Dashboard...');
+        await navigateToContractDashboard(this.page);
+
         this.logger.info(`➡ Applying filters for contracts...`);
         await this.contractService.applyFiltersContracts(this.page);
 
