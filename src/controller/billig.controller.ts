@@ -30,7 +30,7 @@ export class BillingExportAutomation {
    * Initialize browser and page context.
    */
   private async initializeBrowser(): Promise<void> {
-    const session = await initialize( this.page!, this.browser!, false);
+    const session = await initialize( this.page!, this.browser!, true);
     this.page = session.page;
     this.browser = session.browser;  
   }

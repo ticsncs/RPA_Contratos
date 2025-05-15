@@ -23,7 +23,7 @@ export abstract class BaseAutomationTickets {
      */
     protected async initializeBrowser(): Promise<void> {
         try {
-            const session = await initialize(this.page!, this.browser!, false);
+            const session = await initialize(this.page!, this.browser!, true);
             this.page = session.page;
             this.browser = session.browser;
         } catch (error) {
@@ -88,7 +88,7 @@ export abstract class BaseAutomationContracts {
      */
     protected async initializeBrowser(): Promise<void> {
         try {
-            const session = await initialize(this.page!, this.browser!, false);
+            const session = await initialize(this.page!, this.browser!, true);
             this.page = session.page;
             this.browser = session.browser;
         } catch (error) {
