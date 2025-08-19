@@ -13,11 +13,13 @@ export class MongoAPIService {
   private readonly baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.API_MONGO_URL || '190.96.96.20'; // ✅ Base por defecto
+    this.baseUrl = process.env.API_MONGO_URL || '190.96.96.02'; // ✅ Base por defecto
   }
 
  
   async uploadCsvToApi(filePath: string, route: string): Promise<void> {
+    console.log(`🌍 Conectando a la API en: ${this.baseUrl}`);
+    console.log(`🌐 Subiendo archivo CSV a la API en la ruta: ${route}`);
     logger.info('🚀 Iniciando subida de archivo CSV a API');
 
     try {
@@ -30,7 +32,7 @@ export class MongoAPIService {
 
       // Construimos la URL final
       const endpointUrl = `${this.baseUrl}${route}`;
-
+      console.log(`🌐 Subiendo archivo CSV a la API en la ruta: ${endpointUrl}`);
       const response = await axios.post(endpointUrl, form, {
         headers: form.getHeaders(),
       });
