@@ -4,23 +4,43 @@ import path from 'path';
 import { config } from '../core/config';
 import { interactWithElement } from '../utils/handler-elements';
 
-export async function login(view:boolean) {
+
+export async function login(view: boolean) {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');
-    const hasSession = fs.existsSync(sessionFilePath);
+    let hasSession = fs.existsSync(sessionFilePath);
     console.log(`🔍 Sesión guardada: ${hasSession ? 'Sí' : 'No'}`);
 
-    const browser = await chromium.launch({ headless: view });
-    const context = hasSession
+    const browser = await chromium.launch({ headless: !view });
+    let context = hasSession
         ? await browser.newContext({ acceptDownloads: true, storageState: sessionFilePath })
         : await browser.newContext({ acceptDownloads: true });
-    
-    const page = await context.newPage();
+    let page = await context.newPage();
     console.log(`🌍 Navegando a: ${config.baseUrl}`);
     await page.goto(config.baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-    if (!hasSession) {
-        console.log('🔑 No se detectó sesión activa, iniciando sesión...');
+    let sessionValida = true;
+    if (hasSession) {
+        // Validar si la sesión es válida buscando un elemento que solo aparece si está logueado
+        try {
+            await page.waitForSelector('th.o_list_record_selector', { timeout: 10000 });
+            console.log('✅ Sesión válida.');
+        } catch (e) {
+            console.log('⚠️  Sesión inválida, se requiere login.');
+            sessionValida = false;
+        }
+    }
+
+    if (!hasSession || !sessionValida) {
+        // Si la sesión es inválida, eliminar el archivo de sesión y crear nuevo contexto limpio
+        if (hasSession && !sessionValida) {
+            try { fs.unlinkSync(sessionFilePath); } catch (e) { console.log('No se pudo borrar session.json'); }
+            context = await browser.newContext({ acceptDownloads: true });
+            page = await context.newPage();
+            await page.goto(config.baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        }
+        console.log('🔑 No se detectó sesión activa o es inválida, iniciando sesión...');
         await interactWithElement(page, 'input[name="login"]', 'wait');
+        console.log(`👤 Iniciando sesión como: ${config.user}`);
         await interactWithElement(page, 'input[name="login"]', 'fill', { text: config.user });
         await interactWithElement(page, 'input[name="password"]', 'fill', { text: config.pass });
         await interactWithElement(page, 'button[type="submit"]', 'click');
@@ -29,6 +49,5 @@ export async function login(view:boolean) {
         await context.storageState({ path: sessionFilePath });
     }
 
-    //await page.goto(urlWork, { waitUntil: 'domcontentloaded', timeout: 60000 });
     return { browser, page };
 }
