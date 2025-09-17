@@ -90,8 +90,9 @@ const DEFAULT_TIMEOUT = 10000;
   async exportRecordsTableOdoo(page: Page): Promise<{ page: Page, tickets: string[][] | null }> {
     try {
       // Extract table data and filter out empty rows and fields
-      const tickets = await page.$$eval('table tbody tr', rows => {
+      const tickets = await page.$$eval('table tbody tr', (rows: Element[]) => {
         return rows.map(row => {
+          // @ts-ignore
           const columns = Array.from(row.querySelectorAll('td'))
             .map(td => td.innerText.trim())
             .filter(text => text !== ''); // Filter out empty fields

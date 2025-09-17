@@ -1,0 +1,101 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OdooExportService = void 0;
+{ }
+const handler_elements_1 = require("../utils/handler-elements");
+const f_dowload_1 = require("../utils/f_dowload");
+const logger_1 = require("../utils/logger");
+const path_1 = __importDefault(require("path"));
+const logger = new logger_1.Logger('contract-export');
+const DEFAULT_TIMEOUT = 10000;
+/**
+* Select all records for export
+*/
+class OdooExportService {
+    async selectAllRecords(page) {
+        logger.info('Selecting all records for export');
+        if (!page)
+            throw new Error('Page not initialized');
+        try {
+            await (0, handler_elements_1.interactWithElement)(page, 'th.o_list_record_selector', 'wait', { waitTime: 2000 });
+            await (0, handler_elements_1.interactWithElement)(page, 'th.o_list_record_selector', 'click');
+            await (0, handler_elements_1.interactWithElement)(page, 'a.o_list_select_domain', 'wait', { waitTime: 2000 });
+            await (0, handler_elements_1.interactWithElement)(page, 'a.o_list_select_domain', 'click');
+            logger.success('All records selected');
+            return page;
+        }
+        catch (error) {
+            logger.error('Failed to select records', error);
+            return page;
+        }
+    }
+    /**
+     * Export selected records to CSV
+     */
+    async exportRecords(page, name_file, ext_file, name_template) {
+        logger.info('Exporting records to CSV');
+        console.log(name_template, name_file, ext_file);
+        if (!page)
+            throw new Error('Page not initialized');
+        try {
+            // Click on Actions button and select Export option
+            await (0, handler_elements_1.interactWithElement)(page, 'span.o_dropdown_title:has-text("Acción")', 'click');
+            await (0, handler_elements_1.interactWithElement)(page, 'a.dropdown-item:has-text("Exportar")', 'click');
+            // Wait for export modal and set options
+            await page.locator('h4.modal-title', { hasText: 'Exportar Datos' })
+                .waitFor({ state: 'visible', timeout: DEFAULT_TIMEOUT });
+            // Select CSV format
+            await (0, handler_elements_1.interactWithElement)(page, `label[for="o_radio${ext_file.toUpperCase()}"]`, 'wait');
+            await (0, handler_elements_1.interactWithElement)(page, `label[for="o_radio${ext_file.toUpperCase()}"]`, 'click');
+            // Select export field template
+            await (0, handler_elements_1.interactWithElement)(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
+            await (0, handler_elements_1.interactWithElement)(page, 'select.o_exported_lists_select', 'selectOption', { label: name_template });
+            await (0, handler_elements_1.interactWithElement)(page, 'select.o_exported_lists_select', 'wait', { waitTime: 2000 });
+            // Download the file
+            const downloadedFilePath = await (0, f_dowload_1.downloadFile)(page, '.modal-footer > .btn-primary', name_file, ext_file);
+            if (downloadedFilePath) {
+                logger.success(`File downloaded: ${path_1.default.basename(downloadedFilePath)}`);
+                console.log('File downloaded  service:', downloadedFilePath);
+                return downloadedFilePath;
+            }
+            else {
+                logger.error('File download failed');
+                return null;
+            }
+        }
+        catch (error) {
+            logger.error('Export process failed', error);
+            return null;
+        }
+    }
+    /**
+     * Export registers Odoo
+     * * @param page - The Playwright page object
+     * * @returns {Promise<{ page: Page, tickets: string[][] | null }>} - Returns the page and extracted tickets
+     * * @description This function extracts data from a table on the Odoo page and filters out empty rows and fields.
+     *  */
+    async exportRecordsTableOdoo(page) {
+        try {
+            // Extract table data and filter out empty rows and fields
+            const tickets = await page.$$eval('table tbody tr', (rows) => {
+                return rows.map(row => {
+                    // @ts-ignore
+                    const columns = Array.from(row.querySelectorAll('td'))
+                        .map(td => td.innerText.trim())
+                        .filter(text => text !== ''); // Filter out empty fields
+                    return columns;
+                }).filter(columns => columns.length > 0); // Filter out empty rows
+            });
+            logger.info('Extracted tickets:'); // Log the extracted tickets
+            return { page, tickets };
+        }
+        catch (error) {
+            logger.error('Failed to export records', error);
+            return { page, tickets: null };
+        }
+    }
+}
+exports.OdooExportService = OdooExportService;

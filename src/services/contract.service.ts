@@ -19,7 +19,12 @@ export class ContractService {
             await page.getByRole('searchbox', { name: 'Buscar registros' }).fill('');
             
             await page.getByRole('button', { name: ' Favoritos' }).click();
-            await page.getByRole('menuitemcheckbox', { name: 'RPA_mongo' }).click();
+            //await page.pause();
+            await page.waitForTimeout(2000);
+            // Seleccionar el primer menuitemcheckbox que contenga 'RPA_Mongo' o 'RPA_mongo', ignorando case y símbolos
+            await page.getByRole('menuitemcheckbox', { name: 'RPA_Mongo' }).click();
+            
+            await page.waitForTimeout(2000);
             await page.getByRole('button', { name: ' Favoritos' }).click();
             
             // Wait for filter to apply
