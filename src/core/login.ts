@@ -11,7 +11,7 @@ export async function login(view: boolean) {
     if (fs.existsSync(sessionFilePath)) {
         try { fs.unlinkSync(sessionFilePath); } catch (e) { console.log('No se pudo borrar session.json'); }
     }
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ acceptDownloads: true });
     const page = await context.newPage();
     console.log(`🌍 Navegando a: ${config.baseUrl}`);
