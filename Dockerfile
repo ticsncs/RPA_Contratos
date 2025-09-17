@@ -10,7 +10,9 @@ COPY package*.json ./
 COPY tsconfig.json .
 
 # Instala las dependencias del proyecto y Playwright browsers en un solo paso
-RUN npm ci --quiet && \
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    npm ci --quiet && \
     npx playwright install chromium --with-deps && \
     npm install -g ts-node && \
     rm -rf /var/lib/apt/lists/* && \
@@ -27,6 +29,7 @@ RUN mkdir -p /app/src/Session /app/src/Files && \
     chmod -R 777 /app/src/Session /app/src/Files
 
 # Especifica el usuario no-root para seguridad
+ENV TZ=America/Guayaquil
 USER playwright
 
 # Define volúmenes para persistencia de datos
