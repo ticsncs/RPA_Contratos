@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { TimezoneUtils } from './timezone-utils';
 
 /**
  * Logger utility for standardized application logging
@@ -16,11 +17,11 @@ export class Logger {
   }
   
   /**
-   * Generate a formatted timestamp for log entries
-   * @returns ISO timestamp string
+   * Generate a formatted timestamp for log entries in America/Guayaquil timezone
+   * @returns Formatted timestamp string in local timezone
    */
   private getTimestamp(): string {
-    return new Date().toISOString();
+    return TimezoneUtils.getTimestamp();
   }
   
   /**
