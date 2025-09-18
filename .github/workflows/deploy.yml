@@ -38,7 +38,7 @@ jobs:
           script: |
             docker pull alexhm95/rpa_odoo:latest
 
-            echo "Verificando si existe rpa_odoo..."
+            echo "Verificandoa si existe rpa_odoo..."
             EXISTS=$(docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
             
             if [ "$EXISTS" == "rpa_odoo" ]; then
