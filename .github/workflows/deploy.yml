@@ -3,8 +3,8 @@ name: Deploy RPA Docker
 on:
   push:
     branches:
-      - master  # Cambia a la rama que usas para producción (main, master, etc.)      
-  workflow_dispatch:  # Permite ejecutar manualmente desde la interfaz de GitHub
+      - master     
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -34,17 +34,35 @@ jobs:
           host: "${{ secrets.HOST_SERVER }}"
           username: "${{ secrets.USER_SERVER }}"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port : "${{ secrets.PORT_SERVER }}"
+          port: "${{ secrets.PORT_SERVER }}"
           script: |
+            # Pull la última imagen
             docker pull alexhm95/rpa_odoo:latest
-
-            echo "Verificando si existe rpa_odoo..."
-            EXISTS=$(docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
             
-            if [ "$EXISTS" == "rpa_odoo" ]; then
-              echo "Contenedor existente, eliminando..."
+            # Detener el contenedor si está corriendo
+            if docker ps -q --filter "name=rpa_odoo" | grep -q .; then
+              echo "Deteniendo contenedor existente..."
+              docker stop rpa_odoo
+            fi
+            
+            # Eliminar el contenedor si existe
+            if docker ps -aq --filter "name=rpa_odoo" | grep -q .; then
+              echo "Eliminando contenedor antiguo..."
               docker rm rpa_odoo
             fi
             
-        
+            # Crear y ejecutar el nuevo contenedor
+            echo "Iniciando nuevo contenedor..."
+            docker run -d \
+              --name rpa_odoo \
+              --restart unless-stopped \
+              -v rpa_files:/app/src/Files \
+              -v rpa_session:/app/src/Session \
+              alexhm95/rpa_odoo:latest
+            
+            # Verificar que el contenedor está corriendo
+            echo "Verificando estado del contenedor..."
+            docker ps | grep rpa_odoo
+
+
 

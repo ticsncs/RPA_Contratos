@@ -36,4 +36,4 @@ USER playwright
 VOLUME ["/app/src/Files", "/app/src/Session"]
 
 # Comando de inicio (usa nodemon para desarrollo o ts-node para producción)
-CMD ["ts-node", "src/rpa_contratos_full.ts"]
+CMD ["ts-node", "src/runners/runContractsFull.ts"]
