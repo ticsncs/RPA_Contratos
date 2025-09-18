@@ -37,6 +37,33 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port : "${{ secrets.PORT_SERVER }}"
           script: |
+            # Verificar si Docker está instalado y disponible
+            echo "Verificando instalación de Docker..."
+            if ! command -v docker &> /dev/null; then
+              echo "Docker no está instalado o no está en el PATH"
+              echo "Intentando cargar Docker desde ubicaciones comunes..."
+              export PATH="/usr/bin:/usr/local/bin:$PATH"
+              
+              if ! command -v docker &> /dev/null; then
+                echo "Error: Docker no se encuentra disponible en el servidor"
+                echo "Por favor, instale Docker o verifique que esté en el PATH"
+                exit 1
+              fi
+            fi
+            
+            # Verificar que el servicio de Docker esté corriendo
+            echo "Verificando que Docker esté corriendo..."
+            if ! docker info &> /dev/null; then
+              echo "Docker no está corriendo. Intentando iniciar el servicio..."
+              sudo systemctl start docker || service docker start || echo "No se pudo iniciar Docker automáticamente"
+              sleep 5
+              
+              if ! docker info &> /dev/null; then
+                echo "Error: No se puede conectar al daemon de Docker"
+                exit 1
+              fi
+            fi
+
             # Descargar la imagen más reciente
             echo "Descargando imagen Docker actualizada..."
             docker pull alexhm95/rpa_odoo:latest
