@@ -12,6 +12,8 @@ COPY tsconfig.json .
 # Instala las dependencias del proyecto y Playwright browsers en un solo paso
 RUN apt-get update && \
     apt-get install -y tzdata && \
+    ln -sf /usr/share/zoneinfo/America/Guayaquil /etc/localtime && \
+    echo "America/Guayaquil" > /etc/timezone && \
     npm ci --quiet && \
     npx playwright install chromium --with-deps && \
     npm install -g ts-node && \

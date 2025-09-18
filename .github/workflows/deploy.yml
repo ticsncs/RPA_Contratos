@@ -7,7 +7,30 @@ on:
   workflow_dispatch:  # Permite ejecutar manualmente desde la interfaz de GitHub
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build TypeScript
+        run: npm run build
+        
+      - name: Test timezone configuration
+        run: npx ts-node src/test/test-timezone.ts
+
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -36,15 +59,41 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port : "${{ secrets.PORT_SERVER }}"
           script: |
+            # Descargar la imagen más reciente
+            echo "Descargando imagen Docker actualizada..."
             docker pull alexhm95/rpa_odoo:latest
 
-            echo "Verificandoa si existe rpa_odoo..."
+            # Verificar si existe el contenedor
+            echo "Verificando si existe contenedor rpa_odoo..."
             EXISTS=$(docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
             
             if [ "$EXISTS" == "rpa_odoo" ]; then
-              echo "Contenedor existente, eliminando..."
-              docker rm rpa_odoo
+              echo "Deteniendo contenedor existente..."
+              docker stop rpa_odoo 2>/dev/null || true
+              echo "Eliminando contenedor existente..."
+              docker rm rpa_odoo 2>/dev/null || true
             fi
+
+            # Limpiar imágenes antiguas para ahorrar espacio
+            echo "Limpiando imágenes Docker no utilizadas..."
+            docker image prune -f
+
+            # Crear y ejecutar el nuevo contenedor
+            echo "Creando nuevo contenedor..."
+            docker run -d \
+              --name rpa_odoo \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e TZ=America/Guayaquil \
+              -v rpa_files:/app/src/Files \
+              -v rpa_sessions:/app/src/Session \
+              alexhm95/rpa_odoo:latest
+
+            # Verificar que el contenedor esté corriendo
+            echo "Verificando estado del contenedor..."
+            docker ps --filter "name=rpa_odoo"
+            
+            echo "Despliegue completado exitosamente!"
             
         
 
