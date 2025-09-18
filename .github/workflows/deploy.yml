@@ -31,10 +31,10 @@ jobs:
       - name: SSH into Server and Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: "${{ secrets.HOST_SERVER }}"
-          username: "${{ secrets.USER_SERVER }}"
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port : "${{ secrets.PORT_SERVER }}"
+          host: "190.96.102.24"
+          username: "administrador"
+          password: "Server011ncs"
+          port : "22"
           script: |
             echo "Starting deployment script..."
             cd /home/administrador/Robots/RPA_Contratos
