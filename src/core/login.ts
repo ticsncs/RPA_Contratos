@@ -3,22 +3,25 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../core/config';
 import { interactWithElement } from '../utils/handler-elements';
+import { Logger } from '../utils/logger';
 
+const logger = new Logger('LOGIN');
 
 export async function login(view: boolean) {
     const sessionFilePath = path.join(config.sessionsPath, 'session.json');
+    logger.info('Iniciando proceso de login...');
     // Siempre borrar la sesión previa y crear una nueva
     if (fs.existsSync(sessionFilePath)) {
-        try { fs.unlinkSync(sessionFilePath); } catch (e) { console.log('No se pudo borrar session.json'); }
+        try { fs.unlinkSync(sessionFilePath); } catch (e) { logger.error('No se pudo borrar session.json'); }
     }
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ acceptDownloads: true });
     const page = await context.newPage();
-    console.log(`🌍 Navegando a: ${config.baseUrl}`);
+    logger.info(`🌍 Navegando a: ${config.baseUrl}`);
     await page.goto(config.baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    console.log('🔑 Iniciando sesión nueva...');
+    logger.info('🔑 Iniciando sesión nueva...');
     await interactWithElement(page, 'input[name="login"]', 'wait');
-    console.log(`👤 Iniciando sesión como: ${config.user}`);
+    logger.info(`👤 Iniciando sesión como: ${config.user}`);
     await interactWithElement(page, 'input[name="login"]', 'fill', { text: config.user });
     await interactWithElement(page, 'input[name="password"]', 'fill', { text: config.pass });
     await interactWithElement(page, 'button[type="submit"]', 'click');
