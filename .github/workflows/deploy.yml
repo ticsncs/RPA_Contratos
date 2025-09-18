@@ -7,7 +7,6 @@ on:
   workflow_dispatch:  # Permite ejecutar manualmente desde la interfaz de GitHub
 
 jobs:
- 
   build-and-push:
     runs-on: ubuntu-latest
 
@@ -37,118 +36,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port : "${{ secrets.PORT_SERVER }}"
           script: |
-            # Verificar si Docker está instalado y disponible
-            echo "Verificando instalación de Docker..."
-            if ! command -v docker >/dev/null 2>&1; then
-              echo "Docker no está en el PATH, intentando cargar desde ubicaciones comunes..."
-              export PATH="/usr/bin:/usr/local/bin:/snap/bin:$PATH"
-              
-              if ! command -v docker >/dev/null 2>&1; then
-                echo "Error: Docker no se encuentra disponible en el servidor"
-                echo "Por favor, verifique que Docker esté instalado y en el PATH"
-                exit 1
-              fi
-            fi
-            
-            echo "Docker encontrado: $(which docker)"
-            echo "Versión de Docker: $(docker --version)"
-            
-            # Verificar que el servicio de Docker esté corriendo
-            echo "Verificando que Docker esté corriendo..."
-            
-            # Intentar con docker directo primero
-            if ! docker info >/dev/null 2>&1; then
-              echo "Intentando con sudo..."
-              if sudo docker info >/dev/null 2>&1; then
-                echo "Usando Docker con sudo"
-                USE_SUDO=true
-              else
-                echo "Docker no está corriendo. Intentando iniciar el servicio..."
-                sudo systemctl start docker || sudo service docker start || echo "No se pudo iniciar Docker automáticamente"
-                sleep 5
-                
-                if ! docker info >/dev/null 2>&1 && ! sudo docker info >/dev/null 2>&1; then
-                  echo "Error: No se puede conectar al daemon de Docker"
-                  exit 1
-                fi
-                
-                # Determinar comando a usar
-                if docker info >/dev/null 2>&1; then
-                  USE_SUDO=false
-                else
-                  USE_SUDO=true
-                fi
-              fi
-            else
-              USE_SUDO=false
-            fi
+            echo "Starting deployment script..."
+            cd /home/administrador/Robots/RPA_Contratos
+            git config --global --add safe.directory /home/administrador/Robots/RPA_Contratos
+            echo "Updating repository..."
+            git reset --hard
+            git fetch
+            git pull origin master
+            echo "Repository updated."
 
-            # Descargar la imagen más reciente
-            echo "Descargando imagen Docker actualizada..."
-            if [ "$USE_SUDO" = true ]; then
-              sudo docker pull alexhm95/rpa_odoo:latest
-            else
-              docker pull alexhm95/rpa_odoo:latest
-            fi
-
-            # Verificar si existe el contenedor
-            echo "Verificando si existe contenedor rpa_odoo..."
-            if [ "$USE_SUDO" = true ]; then
-              EXISTS=$(sudo docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
-            else
-              EXISTS=$(docker ps -a --filter "name=rpa_odoo" --format "{{.Names}}")
-            fi
-            
-            if [ "$EXISTS" = "rpa_odoo" ]; then
-              echo "Deteniendo contenedor existente..."
-              if [ "$USE_SUDO" = true ]; then
-                sudo docker stop rpa_odoo 2>/dev/null || true
-                sudo docker rm rpa_odoo 2>/dev/null || true
-              else
-                docker stop rpa_odoo 2>/dev/null || true
-                docker rm rpa_odoo 2>/dev/null || true
-              fi
-            fi
-
-            # Limpiar imágenes antiguas para ahorrar espacio
-            echo "Limpiando imágenes Docker no utilizadas..."
-            if [ "$USE_SUDO" = true ]; then
-              sudo docker image prune -f
-            else
-              docker image prune -f
-            fi
-
-            # Crear y ejecutar el nuevo contenedor
-            echo "Creando nuevo contenedor..."
-            if [ "$USE_SUDO" = true ]; then
-              sudo docker run -d \
-                --name rpa_odoo \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -e TZ=America/Guayaquil \
-                -v rpa_files:/app/src/Files \
-                -v rpa_sessions:/app/src/Session \
-                alexhm95/rpa_odoo:latest
-            else
-              docker run -d \
-                --name rpa_odoo \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -e TZ=America/Guayaquil \
-                -v rpa_files:/app/src/Files \
-                -v rpa_sessions:/app/src/Session \
-                alexhm95/rpa_odoo:latest
-            fi
-
-            # Verificar que el contenedor esté corriendo
-            echo "Verificando estado del contenedor..."
-            if [ "$USE_SUDO" = true ]; then
-              sudo docker ps --filter "name=rpa_odoo"
-            else
-              docker ps --filter "name=rpa_odoo"
-            fi
-            
-            echo "Despliegue completado exitosamente!"
-            
+            echo "Permissions updated."
+            chmod +x deploy.sh
+            ./deploy.sh
+            echo "Deployment script finished."
         
 
