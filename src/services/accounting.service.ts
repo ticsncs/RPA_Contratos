@@ -18,7 +18,7 @@ export class AccountingService {
             await page.getByRole('searchbox', { name: 'Buscar registros' }).fill('');
             
             await page.getByRole('button', { name: ' Favoritos' }).click();
-            await page.getByRole('menuitemcheckbox', { name: 'RPA_mongo_cont' }).click();
+            await page.getByRole('menuitemcheckbox', { name: 'RPA_mongos_cont' }).click();
             await page.getByRole('button', { name: ' Favoritos' }).click();
             
             // Wait for filter to apply
