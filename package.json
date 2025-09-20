@@ -12,7 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@slack/web-api": "^7.7.0",
+    "@slack/web-api": "^7.9.3",
     "axios": "^1.8.4",
     "chalk": "^5.4.1",
     "csv-parser": "^3.2.0",
